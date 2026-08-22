@@ -543,8 +543,8 @@ def fig7_param_sensitivity():
 # ============================================================
 def fig8_sankey():
     print("[8/8] Sankey Diagram...")
-    fig, ax = plt.subplots(figsize=(16, 9))
-    ax.set_xlim(-0.5, 11)
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax.set_xlim(-0.3, 9.2)
     ax.set_ylim(-0.5, 13)
     ax.axis('off')
     fig.patch.set_facecolor('white')
@@ -553,7 +553,7 @@ def fig8_sankey():
 
     # --- helpers ---
     def box(x, y, w, h, label, color, fs=9):
-        b = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.15",
+        b = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.12",
                            fc=color, ec='#333333', lw=1.0)
         ax.add_patch(b)
         ax.text(x + w / 2, y + h / 2, label,
@@ -582,22 +582,14 @@ def fig8_sankey():
     adme_ds = [('Caco2_Wang', 910), ('Half_Life_Obach', 667),
                ('CL_Hepatocyte', 1213), ('CL_Microsome', 1102)]
     tox_ds  = [('Tox21', 7258), ('hERG', 655)]
-    splits = {
-        'Caco2_Wang':    (637, 91, 182),
-        'Half_Life_Obach': (466, 66, 135),
-        'CL_Hepatocyte': (849, 121, 243),
-        'CL_Microsome':  (771, 110, 221),
-        'Tox21':         (5080, 725, 1453),
-        'hERG':          (458, 65, 132),
-    }
 
     S = 12.0 / total   # vertical scale
-    gap = 0.25
+    gap = 0.35
 
     # Level 0 — TDC
     tdc_h = total * S
     tdc_y = (13 - tdc_h) / 2
-    box(0, tdc_y, 2, tdc_h, f'TDC Repository\n({total:,})', bc(0.25), 11)
+    box(0, tdc_y, 2.2, tdc_h, f'TDC Repository\n({total:,})', bc(0.25), 12)
 
     # Level 1 — ADME / Toxicity
     adme_h = adme_tot * S;  tox_h = tox_tot * S
@@ -606,10 +598,10 @@ def fig8_sankey():
     tox_y  = base_y
     adme_y = base_y + tox_h + gap
 
-    box(3.2, adme_y, 1.8, adme_h, f'ADME\n({adme_tot:,})', bc(0.40), 10)
-    box(3.2, tox_y,  1.8, tox_h,  f'Toxicity\n({tox_tot:,})', bc(0.50), 10)
-    flow(2.0, adme_y, adme_h, 3.2, adme_y, adme_h, bc(0.35))
-    flow(2.0, tox_y,  tox_h,  3.2, tox_y,  tox_h,  bc(0.45))
+    box(3.6, adme_y, 2.0, adme_h, f'ADME\n({adme_tot:,})', bc(0.40), 11)
+    box(3.6, tox_y,  2.0, tox_h,  f'Toxicity\n({tox_tot:,})', bc(0.50), 11)
+    flow(2.2, adme_y, adme_h, 3.6, adme_y, adme_h, bc(0.35))
+    flow(2.2, tox_y,  tox_h,  3.6, tox_y,  tox_h,  bc(0.45))
 
     # Level 2 — individual datasets
     def place_children(parent_y, parent_h, children, x_left, x_right, intensity_start):
@@ -617,41 +609,18 @@ def fig8_sankey():
         total_gaps  = gap * (len(children) - 1)
         child_scale = (parent_h - total_gaps) / total_child if total_child else S
         cy = parent_y + parent_h
-        positions = []
         for i, (name, size) in enumerate(children):
             h = size * child_scale
             cy -= h
             ci = intensity_start + 0.12 * i
-            box(x_right, cy, 1.7, h, f'{name}\n({size:,})', bc(ci), 8)
+            box(x_right, cy, 2.0, h, f'{name}\n({size:,})', bc(ci), 9)
             flow(x_left, cy, h, x_right, cy, h, bc(ci))
-            positions.append((name, cy, h))
             cy -= gap
-        return positions
 
-    adme_pos = place_children(adme_y, adme_h, adme_ds, 5.0, 6.0, 0.45)
-    tox_pos  = place_children(tox_y,  tox_h,  tox_ds,  5.0, 6.0, 0.58)
+    place_children(adme_y, adme_h, adme_ds, 5.6, 7.0, 0.45)
+    place_children(tox_y,  tox_h,  tox_ds,  5.6, 7.0, 0.58)
 
-    # Level 3 — train / val / test
-    for name, cy, h in adme_pos + tox_pos:
-        sp = splits.get(name)
-        if sp is None:
-            continue
-        tr, va, te = sp
-        tot = tr + va + te
-        tr_h = h * tr / tot
-        va_h = h * va / tot
-        te_h = h * te / tot
-        bx = 8.5
-        by = cy
-        box(bx, by + va_h + te_h, 1.3, tr_h,
-            f'Train\n({tr})', bc(0.35), 7)
-        box(bx, by + te_h, 1.3, va_h,
-            f'Val\n({va})', bc(0.50), 7)
-        box(bx, by, 1.3, te_h,
-            f'Test\n({te})', bc(0.65), 7)
-        flow(7.7, cy, h, 8.5, cy, h, bc(0.40), 0.15)
-
-    ax.set_title('Dataset Flow: TDC Repository \u2192 Task-Specific Splits',
+    ax.set_title('Dataset Flow: TDC Repository \u2192 Task Categories → Datasets',
                  fontsize=14, fontweight='bold', pad=15)
     save_fig(fig, 'sankey-diagram.png')
 

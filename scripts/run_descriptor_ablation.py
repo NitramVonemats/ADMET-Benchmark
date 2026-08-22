@@ -42,7 +42,7 @@ BEST_ALGO = {
     "Clearance_Hepatocyte_AZ": "random", "Clearance_Microsome_AZ": "random",
     "tox21": "sa", "herg": "abc",
 }
-SEEDS = [42, 123, 456]
+SEEDS = [42, 123, 456, 789, 1011, 2022, 3033, 7, 99, 2718]
 OUT_DIR = PROJECT_ROOT / "results" / "descriptor_ablation"
 
 
@@ -162,16 +162,14 @@ def train_variant(dataset_name, seed, cfg, use_descriptors, epochs, patience, de
 
 
 def load_best_cfg(dataset_name):
-    algo = BEST_ALGO[dataset_name]
-    import glob
-    cands = glob.glob(str(PROJECT_ROOT / "runs" / dataset_name / f"*{algo}*.json"))
-    d = json.load(open(cands[0]))
-    bp = d["search"]["best_params"]
+    # Canonical validation-selected config from the fair, leak-free GNN benchmark
+    # (scripts/run_fair_gnn_benchmark.py). Replaces the earlier per-optimizer runs/,
+    # which were selected via test-based optimizer picking and stored no trial history.
+    fair = json.load(open(PROJECT_ROOT / "results" / "fair_model_family" / "fair_gnn_summary.json"))
+    bp = fair[dataset_name]["selected_config"]
     return OptimizedGNNConfig(
         hidden_dim=bp["hidden_dim"], num_layers=bp["num_layers"],
         head_dims=bp["head_dims"], lr=bp["lr"], weight_decay=bp.get("weight_decay", 0.0),
-        batch_train=bp.get("batch_train", 32), batch_eval=bp.get("batch_eval", 64),
-        val_fraction=bp.get("val_fraction", 0.1),
     )
 
 
@@ -185,7 +183,14 @@ def main():
 
     device = resolve_device()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out_file = OUT_DIR / "descriptor_ablation.json"
+    # Merge into existing results so a chunked rerun keeps untouched endpoints.
     results = {}
+    if out_file.exists():
+        try:
+            results = json.loads(out_file.read_text())
+        except Exception:
+            results = {}
     for ds in args.datasets:
         cfg = load_best_cfg(ds)
         is_clf = is_classification_dataset(ds)
@@ -207,8 +212,8 @@ def main():
         results[ds] = rec
         print(f"==> {ds}: with={rec['with_median']:.4f} without={rec['without_median']:.4f} "
               f"delta={rec['delta_median']:+.4f}", flush=True)
-    (OUT_DIR / "descriptor_ablation.json").write_text(json.dumps(results, indent=2))
-    print("Saved", OUT_DIR / "descriptor_ablation.json", flush=True)
+    out_file.write_text(json.dumps(results, indent=2))
+    print("Saved", out_file, flush=True)
 
 
 if __name__ == "__main__":

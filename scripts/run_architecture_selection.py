@@ -294,6 +294,9 @@ def main():
     for ds in args.datasets:
         is_clf = is_classification_dataset(ds)
         metric_keys = (["auc_roc", "f1", "accuracy"] if is_clf else ["rmse", "mae", "r2"])
+        # Validation metrics are computed in train_one but must be persisted so the
+        # eight-architecture ranking can be reproduced WITHOUT touching the test set.
+        val_keys = (["val_auc_roc", "val_f1"] if is_clf else ["val_rmse", "val_r2"])
         results[ds] = {"task": "classification" if is_clf else "regression",
                        "architectures": {}}
         seed_caches = {}
@@ -315,6 +318,11 @@ def main():
                 for k in metric_keys:
                     entry[f"{k}_mean"] = best[k]
                     entry[f"{k}_std"] = 0.0
+                # Persist the validation metrics that governed config selection, so
+                # the cross-architecture ranking can be computed on validation only.
+                for vk in val_keys:
+                    if best.get(vk) is not None:
+                        entry[vk] = float(best[vk])
                 results[ds]["architectures"][arch] = entry
                 disp = (f"AUC={best['auc_roc']:.4f} F1={best['f1']:.4f}" if is_clf
                         else f"RMSE={best['rmse']:.4f} R2={best['r2']:.4f}")
@@ -337,7 +345,7 @@ def main():
                             else f"RMSE={m['rmse']:.4f} R2={m['r2']:.4f}")
                     print(f"  [{ds:24}] {arch:12} seed={seed}: {disp} "
                           f"({m['train_time']:.1f}s, {m['n_params']:,}p)")
-                agg = aggregate(per_seed, metric_keys + ["train_time", "n_params"])
+                agg = aggregate(per_seed, metric_keys + val_keys + ["train_time", "n_params"])
                 results[ds]["architectures"][arch] = {"per_seed": per_seed, **agg}
 
     payload = {"config": {"mode": args.mode, "epochs": args.epochs,
@@ -349,9 +357,24 @@ def main():
                "total_runs": total_runs, "results": results}
     suffix = "_smoke" if args.smoke else ("_search" if args.mode == "search" else "")
     out_json = OUT_DIR / f"architecture_selection{suffix}.json"
+    # Merge into any existing payload so per-dataset / per-architecture chunked runs
+    # accumulate (each run updates only the datasets/architectures it covered).
+    if out_json.exists():
+        try:
+            prev = json.load(open(out_json))
+            merged = prev.get("results", {})
+            for ds, dres in results.items():
+                if ds in merged and "architectures" in merged[ds]:
+                    merged[ds]["architectures"].update(dres["architectures"])
+                else:
+                    merged[ds] = dres
+            payload["results"] = merged
+            payload["total_runs"] = prev.get("total_runs", 0) + total_runs
+        except Exception:
+            pass
     with open(out_json, "w") as f:
         json.dump(payload, f, indent=2)
-    print(f"\nTotal runs: {total_runs}\nSaved -> {out_json}")
+    print(f"\nTotal runs (this chunk): {total_runs}\nSaved -> {out_json}")
 
 
 if __name__ == "__main__":

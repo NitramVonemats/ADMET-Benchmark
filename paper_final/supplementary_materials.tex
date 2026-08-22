@@ -28,62 +28,62 @@ This supplementary document reports the preliminary architecture-selection scree
 
 \begin{table}[H]
 \centering
-\caption{Preliminary classification architecture screen: each architecture is evaluated at its best of five configurations selected on the validation split (search over hidden dimension, number of layers, and learning rate). Test AUC-ROC and F1 on the scaffold-split test set. Best AUC per task in \textbf{bold}.}
+\caption{Preliminary classification architecture screen: \emph{validation}-split AUC-ROC and F1 (the model-selection basis), each architecture at its best of five validation-selected configurations (search over hidden dimension, number of layers, and learning rate). Best validation AUC per task in \textbf{bold}. Test-set performance was not used for architecture selection.}
 \label{tab:arch_classification}
 \small
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Architecture} & \multicolumn{2}{c}{\textbf{Tox21 (NR-AR)}} & \multicolumn{2}{c}{\textbf{hERG}} \\
- & \textbf{AUC} & \textbf{F1} & \textbf{AUC} & \textbf{F1} \\
+ & \textbf{Val AUC} & \textbf{Val F1} & \textbf{Val AUC} & \textbf{Val F1} \\
 \midrule
-GraphConv & 0.741 & 0.495 & 0.775 & 0.784 \\
-GCN & \textbf{0.755} & 0.345 & 0.732 & 0.829 \\
-GAT & 0.695 & 0.419 & 0.725 & 0.725 \\
-GraphSAGE & 0.711 & 0.329 & 0.785 & 0.863 \\
-GIN & 0.724 & 0.481 & 0.733 & 0.841 \\
-TAG & 0.726 & 0.247 & 0.765 & 0.813 \\
-SGC & 0.708 & 0.409 & \textbf{0.795} & 0.892 \\
-Transformer & 0.726 & 0.466 & 0.734 & 0.856 \\
+GraphConv & 0.819 & 0.480 & 0.918 & 0.903 \\
+GCN & 0.821 & 0.435 & 0.912 & 0.915 \\
+GAT & 0.819 & 0.500 & 0.907 & 0.871 \\
+GraphSAGE & \textbf{0.854} & 0.421 & 0.903 & 0.918 \\
+GIN & 0.844 & 0.500 & 0.884 & 0.933 \\
+TAG & 0.821 & 0.444 & 0.892 & 0.897 \\
+SGC & 0.829 & 0.500 & \textbf{0.920} & 0.875 \\
+Transformer & 0.778 & 0.480 & 0.905 & 0.881 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[H]
 \centering
-\caption{Regression architecture screen: average rank across the four ADME regression datasets (by test R$^2$, lower rank is better); each architecture is evaluated at its best of five configurations selected on the validation split (search over hidden dimension, number of layers, and learning rate). Per-dataset test R$^2$ shown for reference. GraphConv (deployed backbone) in \textbf{bold}.}
+\caption{Regression architecture screen: average rank across the four ADME regression datasets by \emph{validation} R$^2$ (lower rank is better), the basis on which the backbone was selected; each architecture at its best of five validation-selected configurations (search over hidden dimension, number of layers, and learning rate). Per-dataset validation R$^2$ shown; the final column gives mean \emph{test} R$^2$ as a post-hoc reference only (not used for selection). GraphConv (deployed backbone) in \textbf{bold}.}
 \label{tab:arch_regression}
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccccccc}
+\begin{tabular}{lcccccccc}
 \toprule
-\textbf{Arch.} & \textbf{Avg Rank} & \textbf{Caco-2} & \textbf{Half-Life} & \textbf{Clear. Hep.} & \textbf{Clear. Mic.} & \textbf{Params} & \textbf{Time (s)} \\
+\textbf{Arch.} & \textbf{Avg Rank} & \textbf{Caco-2} & \textbf{Half-Life} & \textbf{Clear. Hep.} & \textbf{Clear. Mic.} & \textbf{Test R$^2$} & \textbf{Params} & \textbf{Time (s)} \\
 \midrule
-GCN & 3.25 & 0.480 & 0.259 & $-$2.039 & 0.227 & 463k & 9.0 \\
-Transformer & 3.25 & 0.459 & 0.279 & $-$0.835 & 0.139 & 987k & 12.6 \\
-TAG & 4.00 & 0.471 & 0.076 & $-$0.483 & $-$0.494 & 846k & 11.9 \\
-\textbf{GraphConv} & 4.75 & 0.443 & $-$0.044 & $-$0.018 & $-$1.911 & 81k & 8.9 \\
-SGC & 4.75 & 0.380 & 0.207 & $-$0.144 & $-$0.738 & 180k & 9.4 \\
-GAT & 4.75 & 0.368 & 0.288 & $-$1.012 & 0.083 & 145k & 12.8 \\
-GIN & 5.00 & 0.487 & $-$0.054 & $-$0.655 & $-$10.000 & 726k & 8.5 \\
-GraphSAGE & 6.25 & 0.442 & $-$0.296 & $-$2.660 & 0.133 & 247k & 9.0 \\
+GraphSAGE & 3.00 & 0.597 & 0.434 & 0.316 & 0.175 & 0.096 & 662k & 7.3 \\
+Transformer & 3.25 & 0.606 & 0.335 & 0.327 & 0.208 & $-$0.197 & 316k & 16.4 \\
+TAG & 4.25 & 0.582 & 0.407 & 0.228 & 0.279 & 0.226 & 1059k & 12.2 \\
+\textbf{GraphConv} & 4.25 & 0.575 & 0.460 & 0.267 & 0.081 & $-$0.673 & 81k & 7.1 \\
+GCN & 4.75 & 0.534 & 0.447 & 0.247 & 0.137 & $-$0.673 & 399k & 12.8 \\
+GAT & 5.00 & 0.513 & 0.483 & 0.233 & 0.122 & 0.128 & 1067k & 14.9 \\
+SGC & 5.50 & 0.560 & 0.426 & 0.194 & 0.159 & 0.006 & 463k & 12.6 \\
+GIN & 6.00 & 0.625 & 0.368 & 0.157 & 0.058 & $-$1.572 & 113k & 6.2 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The classification screen (Table~\ref{tab:arch_classification}) shows that several architectures are competitive on the two toxicity endpoints: on Tox21 (NR-AR) the eight backbones span AUC $=0.695$--$0.755$, with GraphConv second best (0.741) behind GCN (0.755); on hERG they span AUC $=0.725$--$0.795$, with GraphConv at 0.775. The regression screen (Table~\ref{tab:arch_regression}) confirms that no architecture dominates: GraphConv attains a competitive Caco-2 R$^2$ (0.443) while, like every other backbone, collapsing to large negative R$^2$ on the weakly-learnable clearance and half-life endpoints (e.g., GCN $-2.04$ on hepatocyte clearance, GIN $-10.0$ on microsomal clearance, GraphSAGE $-2.66$ on hepatocyte clearance). This instability is a property of the endpoints rather than of any single backbone. GraphConv was selected as the shared backbone because it remains competitive on the learnable endpoints while using only $\approx$81k parameters—$5$--$12\times$ fewer than GCN (463k) or TransformerConv (987k)—and is among the fastest to train.
+Ranked by \emph{validation} performance (the only leak-free selection signal), no architecture dominates: the eight backbones span a narrow average regression rank ($3.0$--$6.0$; Table~\ref{tab:arch_regression}) and cluster tightly on the classification endpoints (validation AUC $0.78$--$0.85$ on Tox21 and $0.90$--$0.92$ on hERG; Table~\ref{tab:arch_classification}). Like every backbone, GraphConv is unstable on the weakly-learnable clearance and half-life endpoints, an instability that is a property of the endpoints rather than of any single backbone. The validation ranking is moreover a poor predictor of test performance: the best validation-ranked regression backbone (GraphSAGE) reaches only mean test R$^2 = 0.10$, while several validation-competitive backbones (GraphConv, GCN, GIN) post negative mean test R$^2$ (down to $-1.57$). GraphConv is mid-ranked on validation (regression validation rank $4.25$ of $8$) and is not a test-maximizing choice (its mean test R$^2$ is among the lowest); it was adopted as a single, fixed, representative message-passing backbone for the main study, and because architecture selection used validation metrics only and left the test split untouched, the single test evaluation reported in the main benchmark remains unbiased.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.30\textheight,keepaspectratio]{arch_selection_summary.png}
-    \caption{Preliminary architecture-selection summary showing average rank across the regression datasets (lower is better), colored by training stability. GraphConv was selected based on its combination of competitive performance, parameter efficiency, and runtime efficiency.}
+    \caption{Preliminary architecture-selection summary showing average rank across the regression datasets by validation R$^2$ (lower is better); GraphConv (the deployed backbone) is highlighted. No architecture dominates and the per-dataset differences fall within the noise of these small datasets; GraphConv was adopted as a single representative backbone using validation metrics only.}
     \label{fig:arch_selection_summary}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.42\textheight,keepaspectratio]{arch_comparison_all_datasets.png}
-    \caption{Per-dataset architecture comparison across all six benchmark endpoints. Classification endpoints (Tox21, hERG) are shown by test AUC-ROC and regression endpoints (Caco-2, Half-Life, Hepatocyte and Microsomal Clearance) by test R$^2$. The weakly-learnable clearance and half-life endpoints are unstable across all eight architectures, whereas the structure-driven endpoints cluster within a narrow band.}
+    \caption{Per-dataset architecture comparison across all six benchmark endpoints. Classification endpoints (Tox21, hERG) are shown by validation AUC-ROC and regression endpoints (Caco-2, Half-Life, Hepatocyte and Microsomal Clearance) by validation R$^2$ (the selection basis). The weakly-learnable clearance and half-life endpoints are unstable across all eight architectures, whereas the structure-driven endpoints cluster within a narrow band.}
     \label{fig:arch_comparison}
 \end{figure}
 

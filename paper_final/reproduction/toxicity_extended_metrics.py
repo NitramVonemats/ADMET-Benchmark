@@ -61,7 +61,7 @@ from sklearn.metrics import (  # noqa: E402
     matthews_corrcoef,
 )
 
-SEEDS = [42, 123, 456, 789, 1011]
+SEEDS = [42, 123, 456, 789, 1011, 2022, 3033, 7, 99, 2718]
 EPOCHS = 100
 PATIENCE = 20
 
@@ -71,30 +71,32 @@ OUT_DIR = PROJECT_ROOT / "results" / "toxicity_extended"
 PRED_DIR = OUT_DIR / "predictions"
 PRED_DIR.mkdir(parents=True, exist_ok=True)
 
-# Best HPO-selected configuration per toxicity task (from runs/*.json).
+# Canonical validation-selected configuration per toxicity task, from the fair,
+# leak-free GNN benchmark (scripts/run_fair_gnn_benchmark.py). Replaces the earlier
+# test-based per-optimizer configs.
 CONFIGS = {
     "tox21": dict(
         label="Tox21 (NR-AR)",
-        best_algo="SA",
+        best_algo="RandomSearch",
         config=OptimizedGNNConfig(
-            hidden_dim=384,
-            num_layers=5,
-            head_dims=(512, 192, 48),
-            lr=0.002953686570348609,
-            weight_decay=0.0017130398062273086,
+            hidden_dim=96,
+            num_layers=4,
+            head_dims=(128, 64, 32),
+            lr=0.0001417772102090476,
+            weight_decay=0.00014282366403747904,
             batch_train=32,
             batch_eval=64,
         ),
     ),
     "herg": dict(
         label="hERG",
-        best_algo="ABC",
+        best_algo="RandomSearch",
         config=OptimizedGNNConfig(
             hidden_dim=512,
-            num_layers=5,
-            head_dims=(384, 192, 48),
-            lr=0.008938089586343595,
-            weight_decay=0.0011080485964481501,
+            num_layers=7,
+            head_dims=(192, 96, 96),
+            lr=0.002584098930262131,
+            weight_decay=0.00021556900164166473,
             batch_train=32,
             batch_eval=64,
         ),

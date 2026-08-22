@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader, Dataset
 from transformers import AutoModel, AutoTokenizer, get_linear_schedule_with_warmup
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_squared_error, mean_absolute_error, roc_auc_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, roc_auc_score, r2_score
 from sklearn.model_selection import train_test_split
 
 warnings.filterwarnings('ignore')
@@ -61,86 +61,42 @@ def prepare_data(dataset_name, task_type, seed=42):
     - clip_min=1e-3 for non-Caco2 datasets
     - y_all (train+val) for computing mu/sigma
     """
-    # Load dataset from TDC
-    if dataset_name.lower() in ['tox21', 'herg']:
-        from tdc.single_pred import Tox
-        if dataset_name.lower() == 'tox21':
-            data = Tox(name='tox21', label_name='NR-AR')
-        else:
-            data = Tox(name='herg')
-    else:
-        from tdc.single_pred import ADME
-        data = ADME(name=dataset_name)
+    # CANONICAL split (scripts/canonical_split.py): identical scaffold test set and
+    # molecule-level validation carve as the GNN benchmark -> fine-tuning is evaluated
+    # on exactly the same partitions as every other model family.
+    from scripts.canonical_split import canonical_split
+    cs = canonical_split(dataset_name, seed=seed)
+    train_smiles = [s for s, _ in cs['train']]
+    train_labels = [y for _, y in cs['train']]
+    val_smiles = [s for s, _ in cs['val']]
+    val_labels = [y for _, y in cs['val']]
+    test_smiles = [s for s, _ in cs['test']]
+    test_labels = [y for _, y in cs['test']]
 
-    # Use 2-way split like optimized_gnn.py
-    split = data.get_split(method='scaffold', seed=seed, frac=[0.8, 0.0, 0.2])
-
-    train_df = split['train']
-    test_df = split['test']
-
-    # Manual 90/10 train/val split from training data (like optimized_gnn.py)
-    train_df, val_df = train_test_split(
-        train_df, test_size=0.1, random_state=seed
-    )
-
-    # Extract SMILES and labels
-    train_smiles = train_df['Drug'].tolist()
-    train_labels = train_df['Y'].astype(float).tolist()
-    val_smiles = val_df['Drug'].tolist()
-    val_labels = val_df['Y'].astype(float).tolist()
-    test_smiles = test_df['Drug'].tolist()
-    test_labels = test_df['Y'].astype(float).tolist()
-
-    # Filter NaN values
-    train_data = [(s, l) for s, l in zip(train_smiles, train_labels) if not np.isnan(l)]
-    val_data = [(s, l) for s, l in zip(val_smiles, val_labels) if not np.isnan(l)]
-    test_data = [(s, l) for s, l in zip(test_smiles, test_labels) if not np.isnan(l)]
-
-    train_smiles, train_labels = zip(*train_data) if train_data else ([], [])
-    val_smiles, val_labels = zip(*val_data) if val_data else ([], [])
-    test_smiles, test_labels = zip(*test_data) if test_data else ([], [])
-
-    train_labels = list(train_labels)
-    val_labels = list(val_labels)
-    test_labels = list(test_labels)
-
-    # Apply preprocessing for regression (matching optimized_gnn.py)
+    # Regression target transform; normalization stats fit on TRAIN labels only.
     mu, sigma = 0.0, 1.0
-
     if task_type == 'regression':
-        # Use y_all (train + val) for computing normalization stats (like optimized_gnn.py)
-        y_all = np.array(train_labels + val_labels)
+        y_train = np.array(train_labels)
         is_caco2 = dataset_name.lower() == 'caco2_wang'
-
         if is_caco2:
             # Caco2_Wang: values already in log space (all negative)
-            y_log = y_all.astype(np.float32)
-            mu = float(y_log.mean())
-            sigma = float(y_log.std())
+            y_log = y_train.astype(np.float32)
+            mu = float(y_log.mean()); sigma = float(y_log.std())
             if sigma < 1e-6:
                 sigma = 1.0
-
-            # Normalize all labels
             train_labels = [(y - mu) / sigma for y in train_labels]
             val_labels = [(y - mu) / sigma for y in val_labels]
             test_labels = [(y - mu) / sigma for y in test_labels]
         else:
-            # Non-Caco2: apply log transform with clip_min=1e-3 (like optimized_gnn.py)
-            clip_min = 1e-3  # FIXED: was 1e-6, should be 1e-3
-
-            y_all_clipped = np.clip(y_all, clip_min, None)
-            y_log = np.log(y_all_clipped)
-            mu = float(y_log.mean())
-            sigma = float(y_log.std())
+            clip_min = 1e-3
+            y_log = np.log(np.clip(y_train, clip_min, None))
+            mu = float(y_log.mean()); sigma = float(y_log.std())
             if sigma < 1e-6:
                 sigma = 1.0
-
-            # Normalize all labels
             train_labels = [(np.log(max(clip_min, y)) - mu) / sigma for y in train_labels]
             val_labels = [(np.log(max(clip_min, y)) - mu) / sigma for y in val_labels]
             test_labels = [(np.log(max(clip_min, y)) - mu) / sigma for y in test_labels]
-
-        print(f"  Normalization: mu={mu:.4f}, sigma={sigma:.4f}")
+        print(f"  Normalization (train-only): mu={mu:.4f}, sigma={sigma:.4f}")
 
     return {
         'train_smiles': train_smiles,
@@ -150,7 +106,8 @@ def prepare_data(dataset_name, task_type, seed=42):
         'test_smiles': test_smiles,
         'test_labels': test_labels,
         'mu': mu,
-        'sigma': sigma
+        'sigma': sigma,
+        'split_hash': cs['hashes'],
     }
 
 
@@ -301,12 +258,20 @@ def evaluate(model, loader, device, task_type, mu=0.0, sigma=1.0, return_all_met
         preds_orig = np.exp(preds_log)
         labels_orig = np.exp(labels_log)
         rmse_orig = np.sqrt(mean_squared_error(labels_orig, preds_orig))
+        # R2 on both scales; orig-scale matches optimized_gnn.evaluate (the GNN convention).
+        try:
+            r2_orig = float(r2_score(labels_orig, preds_orig))
+        except Exception:
+            r2_orig = float('nan')
+        r2_log = float(r2_score(labels_log, preds_log))
 
         if return_all_metrics:
             return {
                 'rmse_orig': rmse_orig,
                 'rmse_log': rmse_log,
-                'mae_log': mae_log
+                'mae_log': mae_log,
+                'r2_orig': r2_orig,
+                'r2_log': r2_log,
             }
         # For validation/early stopping, use log-scale RMSE (more stable)
         return rmse_log
@@ -417,14 +382,28 @@ def run_finetune_for_dataset(dataset_name, task_type, tokenizer, device):
         print(f"  Test RMSE (log):  {test_metrics['rmse_log']:.4f}")
         print(f"  Test MAE (log):   {test_metrics['mae_log']:.4f}")
 
+    n_trainable = int(sum(p.numel() for p in model.parameters() if p.requires_grad))
+    n_total = int(sum(p.numel() for p in model.parameters()))
     result = {
         'dataset': dataset_name,
         'task_type': task_type,
         'best_val_metric': best_val,
         'epochs_trained': len(history['train_loss']),
         'history': history,
+        'finetune': {
+            'protocol': 'partial task-specific fine-tuning',
+            'unfreeze_layers': UNFREEZE_LAYERS,
+            'lr_encoder': LR_ENCODER,
+            'lr_head': LR_HEAD,
+            'max_epochs': MAX_EPOCHS,
+            'trainable_params': n_trainable,
+            'total_params': n_total,
+            'trainable_frac': n_trainable / n_total,
+        },
         'preprocessing': {
-            'split_method': '2-way TDC + 90/10 manual',
+            'split_method': 'canonical (scripts/canonical_split.py): scaffold test + molecule-level val carve; identical partition to the GNN benchmark',
+            'split_hash': data['split_hash'],
+            'norm_fit_on': 'train-only',
             'clip_min': 1e-3 if dataset_name.lower() != 'caco2_wang' else None,
             'mu': mu,
             'sigma': sigma
@@ -439,15 +418,19 @@ def run_finetune_for_dataset(dataset_name, task_type, tokenizer, device):
         result['test_rmse_orig'] = test_metrics['rmse_orig']
         result['test_rmse_log'] = test_metrics['rmse_log']
         result['test_mae_log'] = test_metrics['mae_log']
+        result['test_r2_orig'] = test_metrics['r2_orig']
+        result['test_r2_log'] = test_metrics['r2_log']
         result['test_metric'] = test_metrics['rmse_log']
 
     return result
 
 
-def run_chemberta_finetune_benchmark():
-    """Run ChemBERTa fine-tuning on all datasets"""
+def run_chemberta_finetune_benchmark(datasets=None):
+    """Run ChemBERTa fine-tuning on all (or the given) datasets"""
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
+    ds_items = ([(d, DATASETS[d]) for d in datasets] if datasets
+                else list(DATASETS.items()))
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"\n{'='*70}")
@@ -457,10 +440,11 @@ def run_chemberta_finetune_benchmark():
     print(f"Datasets: {len(DATASETS)}")
     print(f"Unfreeze layers: {UNFREEZE_LAYERS}")
     print(f"LR (encoder): {LR_ENCODER}, LR (head): {LR_HEAD}")
-    print(f"\nPreprocessing fixes applied:")
-    print(f"  - Data split: TDC 2-way + manual 90/10 (matching optimized_gnn.py)")
-    print(f"  - Clip min: 1e-3 for non-Caco2 (was 1e-6)")
-    print(f"  - Normalization: Using y_all (train+val) for mu/sigma")
+    print(f"\nProtocol:")
+    print(f"  - Split: CANONICAL (scripts/canonical_split.py) -- identical scaffold test")
+    print(f"           and molecule-level val carve as the GNN benchmark")
+    print(f"  - Clip min: 1e-3 for non-Caco2")
+    print(f"  - Normalization: fit on TRAIN labels only")
     print(f"{'='*70}\n")
 
     set_seed(SEED)
@@ -470,7 +454,7 @@ def run_chemberta_finetune_benchmark():
 
     all_results = []
 
-    for dataset_name, task_type in DATASETS.items():
+    for dataset_name, task_type in ds_items:
         print(f"\n{'='*60}")
         print(f"DATASET: {dataset_name} ({task_type})")
         print(f"{'='*60}")
@@ -538,4 +522,8 @@ def run_chemberta_finetune_benchmark():
 
 
 if __name__ == "__main__":
-    run_chemberta_finetune_benchmark()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--datasets", nargs="+", default=None)
+    a = ap.parse_args()
+    run_chemberta_finetune_benchmark(datasets=a.datasets)

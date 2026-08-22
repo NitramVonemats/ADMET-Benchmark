@@ -82,7 +82,7 @@ def make_reliability():
                      f"{y_true.mean():.3f})", fontsize=12, fontweight="bold")
         ax.legend(loc="upper left", fontsize=10, frameon=True)
 
-    fig.suptitle("Reliability diagrams (pooled over 5 seeds)",
+    fig.suptitle("Reliability diagrams (pooled over 10 seeds)",
                  fontsize=14, fontweight="bold", y=1.02)
     fig.tight_layout()
     out = IMG_DIR / "toxicity_reliability.png"
@@ -117,7 +117,7 @@ def make_stability(summary):
     ax.set_xticks(x)
     ax.set_xticklabels([lbl for _, lbl in metrics], fontsize=12,
                        fontweight="bold")
-    ax.set_ylabel("Score (mean $\\pm$ std over 5 seeds)", fontsize=12,
+    ax.set_ylabel("Score (mean $\\pm$ std over 10 seeds)", fontsize=12,
                   fontweight="bold")
     ax.set_ylim(0, 1.05)
     ax.set_title("Toxicity classification metric stability across seeds",

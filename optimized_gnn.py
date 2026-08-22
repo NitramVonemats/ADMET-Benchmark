@@ -365,11 +365,19 @@ def prepare_dataset(
     if overlap and verbose:
         print(f"[WARNING] {len(overlap)} duplicate SMILES found between train and test sets!")
 
-    train_graphs = [
-        row_to_graph(from_smiles, row["Drug"], row["Y"], dataset_name)
-        for _, row in split["train"].iterrows()
-    ]
-    train_graphs = [g for g in train_graphs if g is not None]
+    def _canon_smiles(s):
+        if not RDKit_OK:
+            return s
+        m = Chem.MolFromSmiles(s)
+        return Chem.MolToSmiles(m) if m is not None else s
+
+    # Pair each train graph with its canonical SMILES so replicate measurements of
+    # the same molecule can be kept together during the validation carve.
+    train_pairs = []
+    for _, row in split["train"].iterrows():
+        g = row_to_graph(from_smiles, row["Drug"], row["Y"], dataset_name)
+        if g is not None:
+            train_pairs.append((_canon_smiles(row["Drug"]), g))
 
     test_graphs = [
         row_to_graph(from_smiles, row["Drug"], row["Y"], dataset_name)
@@ -377,17 +385,25 @@ def prepare_dataset(
     ]
     test_graphs = [g for g in test_graphs if g is not None]
 
-    if len(train_graphs) < 2:
+    if len(train_pairs) < 2:
         raise ValueError("Недоволно train примероци за подготвка на датасет.")
 
+    # Molecule-level validation carve: group graphs by canonical SMILES so the SAME
+    # molecule (including replicate measurements with differing Y) never straddles the
+    # train/validation boundary. The scaffold-split TEST set is left unchanged.
+    mol_to_graphs = {}
+    for cs, g in train_pairs:
+        mol_to_graphs.setdefault(cs, []).append(g)
+    unique_mols = list(mol_to_graphs.keys())  # first-occurrence order (== row order when unique)
     rng = random.Random(seed)
-    rng.shuffle(train_graphs)
-
-    n_val = max(1, int(len(train_graphs) * val_fraction))
-    if len(train_graphs) - n_val < 1:
-        n_val = max(1, len(train_graphs) - 1)
-    val_graphs = train_graphs[:n_val]
-    train_graphs = train_graphs[n_val:]
+    rng.shuffle(unique_mols)
+    n_val_mol = max(1, int(len(unique_mols) * val_fraction))
+    if len(unique_mols) - n_val_mol < 1:
+        n_val_mol = max(1, len(unique_mols) - 1)
+    val_mol_set = set(unique_mols[:n_val_mol])
+    val_graphs, train_graphs = [], []
+    for cs in unique_mols:
+        (val_graphs if cs in val_mol_set else train_graphs).extend(mol_to_graphs[cs])
 
     if not train_graphs:
         raise ValueError("Валидациската поделба ја испразни тренинг групата.")
@@ -645,9 +661,12 @@ def evaluate(model, loader, device, mu, sigma, is_log_transformed=False):
         # All targets are identical
         r2 = 1.0 if ss_res < 1e-12 else 0.0
     else:
+        # Raw, unmodified R2. It is intentionally NOT clipped/floored: the primary
+        # model-family results report the 10-seed MEDIAN (robust to divergent
+        # seeds), so no capping is needed or applied. Any clipping/flooring lives
+        # only in the explicitly-labeled cross-endpoint HPO sensitivity analysis
+        # (scripts/analyze_hpo_robust.py), never in the reported per-seed values.
         r2 = 1 - (ss_res / ss_tot)
-        # Clip R2 to reasonable range
-        r2 = max(-10.0, min(10.0, r2))
 
     # Debug: print actual values if RMSE is suspiciously low
     if rmse < 0.001 and len(preds_orig) > 0:

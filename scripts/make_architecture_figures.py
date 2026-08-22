@@ -1,15 +1,19 @@
 """
 Regenerate the GNN architecture-selection figures and supplementary tables
 directly from the real screen results (results/architecture_selection/
-architecture_selection.json). No hardcoded metrics.
+architecture_selection_search.json). No hardcoded metrics.
 
-Supersedes generate_gnn_architecture_comparison.py, whose values were hardcoded.
+Model SELECTION is performed on the VALIDATION split only: architectures are ranked
+by validation R2 (regression) / validation AUC-ROC (classification), which is the
+basis on which GraphConv was chosen as the deployed backbone. Test-set metrics are
+reported ONLY as a post-hoc reference and are never used for selection or ranking --
+this closes the model-selection leakage concern.
 
 Outputs (to paper_final/images/ and results/architecture_selection/):
-  - arch_comparison_all_datasets.png : per-dataset bar comparison (R2/RMSE/AUC)
-  - arch_selection_summary.png       : average rank across regression datasets
-  - table_S1_classification.tex      : LaTeX for the classification screen
-  - table_S2_regression_ranking.tex  : LaTeX for the regression ranking
+  - arch_comparison_all_datasets.png : per-dataset validation comparison (R2/AUC)
+  - arch_selection_summary.png       : average validation rank across regression datasets
+  - table_S1_classification.tex      : LaTeX for the classification screen (validation)
+  - table_S2_regression_ranking.tex  : LaTeX for the regression ranking (validation)
   - architecture_selection_summary.csv
 """
 
@@ -59,13 +63,27 @@ def fmt(mean, std):
     return f"{mean:.3f}$\\pm${std:.3f}"
 
 
-def arch_table(results, ds, metric):
-    """Return {arch: (mean, std)} for a metric on a dataset."""
+def test_table(results, ds, metric):
+    """Return {arch: (mean, std)} for a TEST metric on a dataset."""
     out = {}
     for arch, d in results[ds]["architectures"].items():
         m, s = d.get(f"{metric}_mean"), d.get(f"{metric}_std")
         if m is not None:
             out[arch] = (m, s if s is not None else 0.0)
+    return out
+
+
+def val_table(results, ds, valkey):
+    """Return {arch: value} for a VALIDATION metric (the selection basis).
+
+    Search-mode files store the flat key (e.g. ``val_r2``); fixed-mode aggregates
+    store ``val_r2_mean`` -- accept either so the ranking is reproducible from both.
+    """
+    out = {}
+    for arch, d in results[ds]["architectures"].items():
+        v = d.get(valkey, d.get(f"{valkey}_mean"))
+        if v is not None and np.isfinite(v):
+            out[arch] = float(v)
     return out
 
 
@@ -83,19 +101,17 @@ def fig_comparison(payload):
 
     for ax, ds in zip(axes, panels):
         is_clf = ds in present_clf
-        metric = "auc_roc" if is_clf else "r2"
-        tbl = arch_table(results, ds, metric)
+        valkey = "val_auc_roc" if is_clf else "val_r2"
+        tbl = val_table(results, ds, valkey)
         archs = [a for a in ARCH_ORDER if a in tbl]
-        means = [tbl[a][0] for a in archs]
-        stds = [tbl[a][1] for a in archs]
-        bars = ax.bar(range(len(archs)), means, yerr=stds, capsize=3,
-                      color=[cmap[a] for a in archs], edgecolor="black", linewidth=0.5,
-                      error_kw=dict(ecolor="0.3", lw=1))
-        best = int(np.argmax(means))  # higher R2/AUC is better
+        means = [tbl[a] for a in archs]
+        bars = ax.bar(range(len(archs)), means,
+                      color=[cmap[a] for a in archs], edgecolor="black", linewidth=0.5)
+        best = int(np.argmax(means))  # higher validation R2/AUC is better
         bars[best].set_edgecolor("gold")
         bars[best].set_linewidth(3)
         label = CLF_LABEL[ds] if is_clf else REG_LABEL[ds]
-        unit = "Test AUC-ROC" if is_clf else "Test R$^2$"
+        unit = "Val. AUC-ROC" if is_clf else "Val. R$^2$"
         ax.set_title(f"{label}\n({unit} $\\uparrow$)", fontsize=11, fontweight="bold")
         ax.set_xticks(range(len(archs)))
         ax.set_xticklabels(archs, rotation=45, ha="right", fontsize=8)
@@ -105,10 +121,10 @@ def fig_comparison(payload):
     for ax in axes[len(panels):]:
         ax.set_visible(False)
 
-    subtitle = ("best of {} validation-selected configurations".format(
-                    len(payload["config"]["config_grid"])) if is_search(payload)
+    k = len(payload["config"]["config_grid"]) if is_search(payload) else None
+    subtitle = (f"best of {k} validation-selected configurations" if k
                 else "mean $\\pm$ std over {} seeds".format(len(payload["config"]["seeds"])))
-    fig.suptitle(f"GNN architecture screen across ADMET endpoints ({subtitle})",
+    fig.suptitle(f"GNN architecture screen across ADMET endpoints ({subtitle}; validation split)",
                  fontsize=13, fontweight="bold", y=1.01)
     fig.tight_layout()
     out = IMG_DIR / "arch_comparison_all_datasets.png"
@@ -118,21 +134,27 @@ def fig_comparison(payload):
 
 
 def compute_ranking(payload):
-    """Average rank across regression datasets by mean R2 (higher better)."""
+    """Average rank across regression datasets by VALIDATION R2 (higher better).
+
+    Test R2 is collected only as a post-hoc reference column; it never affects rank.
+    """
     results = payload["results"]
     present_reg = [d for d in REG if d in results]
     ranks = {a: [] for a in ARCH_ORDER}
-    per_ds_r2 = {a: {} for a in ARCH_ORDER}
+    per_ds_val = {a: {} for a in ARCH_ORDER}
+    per_ds_test = {a: {} for a in ARCH_ORDER}
     params = {a: None for a in ARCH_ORDER}
     times = {a: [] for a in ARCH_ORDER}
     for ds in present_reg:
-        tbl = arch_table(results, ds, "r2")
-        # rank by R2 descending
-        ordered = sorted(tbl.items(), key=lambda kv: kv[1][0], reverse=True)
+        vtbl = val_table(results, ds, "val_r2")
+        ttbl = test_table(results, ds, "r2")
+        # rank by VALIDATION R2 descending (selection basis)
+        ordered = sorted(vtbl.items(), key=lambda kv: kv[1], reverse=True)
         rank_of = {a: i + 1 for i, (a, _) in enumerate(ordered)}
-        for a in tbl:
+        for a in vtbl:
             ranks[a].append(rank_of[a])
-            per_ds_r2[a][ds] = tbl[a][0]
+            per_ds_val[a][ds] = vtbl[a]
+            per_ds_test[a][ds] = ttbl.get(a, (None,))[0] if a in ttbl else None
             ent = results[ds]["architectures"][a]
             if ent.get("n_params_mean") is not None:
                 params[a] = ent["n_params_mean"]
@@ -142,13 +164,15 @@ def compute_ranking(payload):
     for a in ARCH_ORDER:
         if not ranks[a]:
             continue
+        test_vals = [v for v in per_ds_test[a].values() if v is not None]
         summary.append({
             "Architecture": a,
             "Avg_Rank": float(np.mean(ranks[a])),
-            "Mean_R2": float(np.mean(list(per_ds_r2[a].values()))),
+            "Mean_Val_R2": float(np.mean(list(per_ds_val[a].values()))),
+            "Mean_Test_R2": float(np.mean(test_vals)) if test_vals else None,
             "Params_k": (params[a] / 1000.0) if params[a] else None,
             "Mean_time_s": float(np.mean(times[a])) if times[a] else None,
-            **{REG_LABEL[ds]: per_ds_r2[a].get(ds) for ds in present_reg},
+            **{REG_LABEL[ds]: per_ds_val[a].get(ds) for ds in present_reg},
         })
     df = pd.DataFrame(summary).sort_values("Avg_Rank").reset_index(drop=True)
     return df, present_reg
@@ -160,9 +184,9 @@ def fig_selection_summary(df):
     bars = ax.barh(df["Architecture"], df["Avg_Rank"], color=colors,
                    edgecolor="black", linewidth=0.5)
     ax.invert_yaxis()
-    ax.set_xlabel("Average rank across regression datasets (lower is better)")
+    ax.set_xlabel("Average rank across regression datasets by validation R$^2$ (lower is better)")
     ax.set_title("GNN architecture selection summary\n"
-                 "(average rank on ADME regression R$^2$; GraphConv = deployed backbone)",
+                 "(average rank on ADME regression validation R$^2$; GraphConv = deployed backbone)",
                  fontweight="bold")
     for bar, r, p in zip(bars, df["Avg_Rank"], df["Params_k"]):
         txt = f"{r:.2f}" + (f"  ({p:.0f}k params)" if p is not None else "")
@@ -196,29 +220,30 @@ def latex_S1(payload):
         "% Auto-generated by scripts/make_architecture_figures.py -- do not edit by hand.",
         "\\begin{table}[!t]", "\\centering",
         "\\caption{Preliminary classification architecture screen: " + method_caption(payload) +
-        ". Test AUC-ROC and F1 on the scaffold-split test set. Best AUC per task in "
-        "\\textbf{bold}.}",
+        ". Values are \\emph{validation}-split AUC-ROC and F1, i.e. the model-selection "
+        "basis; best validation AUC per task in \\textbf{bold}. Test-set performance is "
+        "reported only for the deployed backbone in the main comparison and was not used "
+        "for architecture selection.}",
         "\\label{tab:arch_classification}", "\\small", "\\setlength{\\tabcolsep}{4pt}",
         "\\begin{tabular}{l" + "cc" * len(present_clf) + "}", "\\toprule",
         "\\textbf{Architecture} & " +
         " & ".join(f"\\multicolumn{{2}}{{c}}{{\\textbf{{{CLF_LABEL[d]}}}}}" for d in present_clf) + " \\\\",
-        " & " + " & ".join("\\textbf{AUC} & \\textbf{F1}" for _ in present_clf) + " \\\\",
+        " & " + " & ".join("\\textbf{Val AUC} & \\textbf{Val F1}" for _ in present_clf) + " \\\\",
         "\\midrule",
     ]
-    best_auc = {d: max(arch_table(results, d, "auc_roc").items(), key=lambda kv: kv[1][0])[0]
-                for d in present_clf}
+    valauc = {d: val_table(results, d, "val_auc_roc") for d in present_clf}
+    valf1 = {d: val_table(results, d, "val_f1") for d in present_clf}
+    best_auc = {d: max(valauc[d].items(), key=lambda kv: kv[1])[0] for d in present_clf}
     for a in ARCH_ORDER:
         if a not in results[present_clf[0]]["architectures"]:
             continue
         cells = []
         for d in present_clf:
-            auc = arch_table(results, d, "auc_roc")[a]
-            f1 = arch_table(results, d, "f1")[a]
-            aucs = fmt(*auc)
+            aucs = fmt(valauc[d][a], 0.0)
             if a == best_auc[d]:
                 aucs = "\\textbf{" + aucs + "}"
             cells.append(aucs)
-            cells.append(fmt(*f1))
+            cells.append(fmt(valf1[d][a], 0.0))
         lines.append(f"{a} & " + " & ".join(cells) + " \\\\")
     lines += ["\\bottomrule", "\\end{tabular}", "\\end{table}"]
     out = OUT_DIR / "table_S1_classification.tex"
@@ -232,25 +257,30 @@ def latex_S2(df, present_reg, payload):
         "% Auto-generated by scripts/make_architecture_figures.py -- do not edit by hand.",
         "\\begin{table}[!t]", "\\centering",
         "\\caption{Regression architecture screen: average rank across the four ADME "
-        "regression datasets (by test R$^2$, lower rank is better); " + method_caption(payload) +
-        ". Per-dataset test R$^2$ shown for reference. GraphConv (deployed backbone) in "
-        "\\textbf{bold}.}",
+        "regression datasets by \\emph{validation} R$^2$ (lower rank is better), the basis "
+        "on which the backbone was selected; " + method_caption(payload) +
+        ". Per-dataset validation R$^2$ shown; the final column gives mean \\emph{test} R$^2$ "
+        "as a post-hoc reference only (not used for selection). GraphConv (deployed backbone) "
+        "in \\textbf{bold}.}",
         "\\label{tab:arch_regression}", "\\small", "\\setlength{\\tabcolsep}{4pt}",
-        "\\begin{tabular}{lc" + "c" * len(present_reg) + "cc}", "\\toprule",
+        "\\begin{tabular}{lc" + "c" * len(present_reg) + "ccc}", "\\toprule",
         "\\textbf{Arch.} & \\textbf{Avg Rank} & " +
         " & ".join(f"\\textbf{{{REG_LABEL[d]}}}" for d in present_reg) +
-        " & \\textbf{Params} & \\textbf{Time (s)} \\\\",
+        " & \\textbf{Test R$^2$} & \\textbf{Params} & \\textbf{Time (s)} \\\\",
         "\\midrule",
     ]
     def num(v):  # proper LaTeX minus sign, matching the main manuscript
+        if v is None:
+            return "--"
         return (f"$-${abs(v):.3f}" if v < 0 else f"{v:.3f}")
     for _, row in df.iterrows():
         name = row["Architecture"]
         disp = f"\\textbf{{{name}}}" if name == "GraphConv" else name
         r2cells = " & ".join(num(row[REG_LABEL[d]]) for d in present_reg)
+        testr2 = num(row["Mean_Test_R2"])
         pk = f"{row['Params_k']:.0f}k" if row["Params_k"] is not None else "--"
         tt = f"{row['Mean_time_s']:.1f}" if row["Mean_time_s"] is not None else "--"
-        lines.append(f"{disp} & {row['Avg_Rank']:.2f} & {r2cells} & {pk} & {tt} \\\\")
+        lines.append(f"{disp} & {row['Avg_Rank']:.2f} & {r2cells} & {testr2} & {pk} & {tt} \\\\")
     lines += ["\\bottomrule", "\\end{tabular}", "\\end{table}"]
     out = OUT_DIR / "table_S2_regression_ranking.tex"
     out.write_text("\n".join(lines), encoding="utf-8")
@@ -267,7 +297,7 @@ def main():
     print(f"Wrote {OUT_DIR / 'architecture_selection_summary.csv'}")
     s1 = latex_S1(payload)
     s2 = latex_S2(df, present_reg, payload)
-    print("\n===== REGRESSION RANKING (real) =====")
+    print("\n===== REGRESSION RANKING (validation) =====")
     print(df.to_string(index=False))
     print("\n===== S1 =====\n" + s1)
     print("\n===== S2 =====\n" + s2)
