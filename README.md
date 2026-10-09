@@ -8,8 +8,8 @@ benchmarks graph neural networks (GNN), frozen pretrained encoders (ChemBERTa,
 MolCLR) and fingerprint baselines (Morgan-FP, MolE-FP) on six Therapeutics Data
 Commons (TDC) ADMET endpoints under scaffold-split evaluation, with a matched
 50-trial validation-selected tuning budget per model family and the median over ten
-seeds. A separate study compares seven hyperparameter-optimization (HPO) strategies
-against Random Search.
+seeds. A separate, GNN-only study compares seven hyperparameter-optimization (HPO)
+strategies (Random Search and six alternatives).
 
 **Main findings.** No model family dominates: on most endpoints the leading
 families differ by less than the across-seed range. The GNN is clearly best only on
@@ -27,7 +27,7 @@ metaheuristic consistently outperforms Random Search at a 50-trial budget.
 | Item | Setting |
 |---|---|
 | Datasets | 6 TDC ADMET endpoints (4 ADME regression, 2 toxicity classification) |
-| Split | TDC Bemis–Murcko scaffold split (train/test); validation carved from the scaffold-train side at the **molecule level** (10% of unique canonical SMILES, seed 42) → ≈70/8/22 |
+| Split | TDC Bemis–Murcko scaffold split (`get_split(method="scaffold")`, ≈70/10/20); the **test partition is identical for every model family**; how each pipeline forms its training and validation sets is listed under *Pipeline details* below |
 | Selection | Validation only; test split used once for the final estimate |
 | Budget | 50 trials per family: GNN = Random Search over architecture + training hyperparameters; baselines = search over the MLP head on frozen features |
 | Robustness | 10 seeds `[42, 123, 456, 789, 1011, 2022, 3033, 7, 99, 2718]`, reported as **median [min–max]** |
@@ -35,9 +35,48 @@ metaheuristic consistently outperforms Random Search at a 50-trial budget.
 | GNN | Stacked GraphConv + BatchNorm + ReLU + residuals, 8 atom features, no bond features, mean‖max pooling, concatenated with 15 RDKit descriptors (7 for Caco-2), MLP head; Adam, batch 32, MSE / BCE-with-logits, grad-clip 1.0, 50 epochs, patience 12; Caco-2 adds dropout 0.5 + label noise σ = 0.05 |
 | Hardware | Intel Core i7-8700K, 16 GB RAM, NVIDIA RTX 3060 |
 
+### Pipeline details
+
+**Training and validation data per pipeline (rows).** Both pipelines evaluate on the
+same TDC scaffold test partition. The baselines (Table II) train on the TDC train
+partition and select their MLP head on the TDC validation partition. The GNN does not
+use the TDC validation partition: it holds out 10% of the TDC train partition at the
+molecule level (seed 42) for early stopping and model selection. ChemBERTa partial
+fine-tuning uses the GNN split.
+
+| Endpoint | TDC train / valid / test = baselines | GNN train / val / test |
+|---|---:|---:|
+| Caco2_Wang | 637 / 91 / 182 | 574 / 63 / 182 |
+| Half_Life_Obach | 466 / 66 / 135 | 420 / 46 / 135 |
+| Clearance_Hepatocyte_AZ | 849 / 121 / 243 | 763 / 86 / 243 |
+| Clearance_Microsome_AZ | 771 / 110 / 221 | 694 / 77 / 221 |
+| Tox21 (NR-AR) | 5,080 / 725 / 1,453 | 4,572 / 508 / 1,453 |
+| hERG | 458 / 65 / 132 | 413 / 45 / 132 |
+
+The baselines therefore see about 10% more training rows and select on a
+scaffold-held-out validation set, while the GNN selects on an in-distribution
+validation set. Replicate measurements are kept as separate rows in every pipeline
+(e.g. the hepatocyte test partition has 243 rows for 203 unique compounds);
+`scripts/verify_splits.py` checks that no canonical SMILES occurs in more than one
+partition and that all families share the same test compounds.
+
+**Encoders.** ChemBERTa = `seyonec/ChemBERTa-zinc-base-v1` (Hugging Face), frozen,
+768-d embedding. MolCLR = official pretrained GIN checkpoint
+(`external/MolCLR/ckpt/pretrained_gin/checkpoints/model.pth`, git submodule), frozen,
+512-d embedding. MolE-FP = Morgan fingerprints + a learned projection inspired by
+MolE, not the pretrained MolE encoder. Only the GNN receives the auxiliary RDKit
+descriptors; the descriptor ablation quantifies this asymmetry.
+
+**Determinism.** GPU training is seeded but not bit-wise deterministic, so re-running
+a configuration with the same seeds reproduces medians only approximately (see the
+note under the descriptor ablation). Likewise, the seed-42 run behind the confusion
+matrices (Supp. Fig. S1; Tox21 AUC 0.754, hERG AUC 0.758) is a separate re-run of the
+same configuration and need not coincide with seed 42 in the ten-seed results. The
+canonical numbers are the ones in `artifacts/`.
+
 ### Table I – dataset statistics
 
-| Dataset | Type | TDC | Used | Metric |
+| Dataset | Type | TDC | Used by GNN | Metric |
 |---|---|---:|---:|---|
 | Caco2_Wang | Regr. | 910 | 819 | RMSE / R² |
 | Half_Life_Obach | Regr. | 667 | 601 | RMSE / R² |
@@ -47,8 +86,10 @@ metaheuristic consistently outperforms Random Search at a 50-trial budget.
 | hERG | Class. | 655 | 590 | AUC-ROC |
 | **Total** | | **11,805** | **10,627** | |
 
-"Used" = molecules retained after removing invalid SMILES / failed graph conversion
-(= train + val + test). Tox21 positives: 4.2% of the full corpus, 4.9% of the scaffold
+"Used by GNN" = rows of the TDC scaffold train and test partitions (= GNN train + val
++ test). The remaining 1,178 rows form the TDC validation partition, which the GNN
+does not use and the baselines use for model selection (see *Pipeline details*). No
+row is removed by the SMILES-validity filter. Tox21 positives: 4.2% of the full corpus, 4.9% of the scaffold
 test set. Verified by `scripts/verify_splits.py`.
 
 ---
@@ -101,9 +142,12 @@ clearance endpoints (strongly negative R²), which is why medians are reported.
 | hERG (AUC) | 0.763 | 0.761 | +0.002 |
 
 The GNN's Caco-2 advantage is descriptor-driven; on the toxicity endpoints the
-descriptors add essentially nothing.
+descriptors add essentially nothing. The ablation is an independent re-run of the
+Table II configurations with the same ten seeds; because GPU training is not
+bit-wise deterministic, its "With" medians differ from Table II by at most 0.05
+(e.g. Caco-2 0.455 vs. 0.482). Each Δ compares runs from the same re-run.
 
-### ChemBERTa partial fine-tuning (last 2 transformer layers, 33.8% trainable, canonical split)
+### ChemBERTa partial fine-tuning (last 2 transformer layers, 33.8% trainable, single seed 42, GNN split)
 
 | Endpoint | Frozen (Table II) | Fine-tuned |
 |---|---:|---:|
@@ -114,8 +158,11 @@ descriptors add essentially nothing.
 | Clearance Hep. (R²) | −0.224 | −0.246 |
 | Clearance Mic. (R²) | −0.010 | 0.009 |
 
-Fine-tuning neither rescues the pharmacokinetic endpoints nor overturns the
-frozen-feature ranking.
+Fine-tuning does not rescue the pharmacokinetic endpoints. On the two classification
+endpoints the single-seed fine-tuned scores are nominally above every Table II median
+(hERG 0.770 vs. 0.767 for Morgan-FP; Tox21 0.735 vs. 0.722 for MolCLR), but within the
+across-seed ranges of the GNN and Morgan-FP, so they do not change the conclusion that
+no family dominates.
 
 ### Imbalance-aware toxicity metrics (GNN, mean ± std over 10 seeds, threshold tuned on validation)
 
@@ -124,8 +171,8 @@ frozen-feature ranking.
 | Tox21 (NR-AR) | 0.722 ± 0.019 | 0.417 ± 0.038 | 0.444 ± 0.063 | 0.493 ± 0.071 | 4.9% |
 | hERG | 0.770 ± 0.049 | 0.886 ± 0.032 | 0.791 ± 0.090 | 0.373 ± 0.092 | 73.5% |
 
-Seed-42 confusion matrices at the 0.5 threshold: Tox21 F1 = 0.505, hERG F1 = 0.850
-(`paper_final/images/confusion_matrices.png`).
+Seed-42 confusion matrices at the 0.5 threshold (Supp. Fig. S1): Tox21 F1 = 0.505,
+hERG F1 = 0.850 (`paper_final/images/confusion_matrices.png`).
 
 ### HPO optimizers vs. Random Search (clean, leak-free re-run; n = 6 endpoints)
 
@@ -137,15 +184,24 @@ percentile bootstraps.
 | Optimizer | W/T/L | Sign-test p | Norm. effect [95% CI] | Clip [−1,1] mean [95% CI] | Floor-0 mean [95% CI] |
 |---|:---:|---:|---|---|---|
 | PSO | 2/0/4 | 0.69 | −0.16 [−1.35, +1.25] | +0.174 [−0.084, +0.612] | +0.033 [−0.036, +0.124] |
-| ABC | 5/0/1 | 0.22 | +0.52 [−0.45, +1.38] | +0.026 [−0.292, +0.311] | +0.032 [+0.000, +0.091] |
+| ABC | 4/1/1 | 0.375 | +0.52 [−0.45, +1.38] | +0.026 [−0.292, +0.311] | +0.032 [+0.000, +0.091] |
 | GA | 3/0/3 | 1.00 | +0.01 [−1.41, +1.40] | +0.169 [−0.067, +0.536] | +0.020 [−0.040, +0.086] |
 | SA | 1/0/5 | 0.22 | −0.77 [−1.82, +0.55] | −0.135 [−0.471, +0.171] | −0.018 [−0.031, −0.006] |
 | HC | 3/0/3 | 1.00 | +0.02 [−1.13, +1.37] | +0.034 [−0.440, +0.556] | +0.014 [−0.021, +0.062] |
 | TPE | 2/0/4 | 0.69 | +0.01 [−1.02, +1.16] | +0.105 [−0.075, +0.329] | +0.027 [−0.024, +0.114] |
 
-Note: on hERG, ABC (0.81001) and Random Search (0.80987) differ by 0.0001, i.e. a
-tie at three decimals; counting it as a tie gives ABC 4/1/1 (p = 0.375). Either way no
-optimizer is significant and every scale-free / clipped interval spans zero.
+Ties: a paired difference smaller than 10⁻³ in absolute value counts as a tie, as in
+Supp. Table S4. This only affects ABC on hERG (0.81001 vs. 0.80987);
+`robust_analysis.json` stores the strict count without a tie tolerance (ABC 5/0/1,
+p = 0.22). Either way no optimizer is significant and every scale-free / clipped
+interval spans zero.
+
+The Random Search arm of this study is an independent 50-trial search (its own
+candidate seed), separate from the Random Search that feeds Table II
+(`artifacts/fair_model_family/`). Their selected configurations differ, which is why,
+for example, Microsomal clearance reaches test R² −3.288 here but 0.137 for the
+Table II configuration at seed 42. The difference itself illustrates how unstable
+validation-based selection is on the clearance endpoints.
 
 Per-optimizer test performance (regression R², classification AUC-ROC):
 
@@ -161,7 +217,7 @@ Per-optimizer test performance (regression R², classification AUC-ROC):
 Optimizer implementation (`scripts/run_hpo_comparison_clean.py`, NiaPy 2.6.1 /
 Optuna 4.7.0): 50 trials per optimizer and dataset (7 × 6 × 50 = 2,100 GNN training
 runs); PSO / ABC / GA with `population_size=10`; SA and HC with NiaPy defaults; TPE via
-`optuna.samplers.TPESampler` (Optuna default pruner). Search space:
+`optuna.samplers.TPESampler` with default settings (no pruning). Search space (Supp. Table S2):
 
 | Hyperparameter | Space |
 |---|---|
@@ -178,7 +234,7 @@ TransformerConv) × 6 endpoints × best-of-5 configurations = 240 runs. Ranked b
 validation performance no backbone dominates (average regression rank 3.0–6.0;
 validation AUC 0.78–0.85 on Tox21, 0.88–0.92 on hERG; Caco-2 validation R²
 0.51–0.63). GraphConv is mid-ranked (regression rank 4.25 of 8) and was adopted as a
-single representative backbone. Full tables:
+single representative backbone. Full tables (Supp. Tables S1 and S3):
 `artifacts/architecture_selection/table_S1_classification.tex`,
 `table_S2_regression_ranking.tex`, `architecture_selection_summary.csv`.
 
@@ -188,7 +244,12 @@ single representative backbone. Full tables:
 
 `results/` (gitignored, local) is the working output tree; `artifacts/` is the
 committed, released copy of the canonical result files (identical content). Every
-paper element traces to one artifact and one generator script.
+paper element traces to one artifact and one generator script. Scripts that read
+earlier results (`analyze_hpo_robust.py`, `make_hpo_clean_figure.py`,
+`make_architecture_figures.py`, `make_toxicity_figures.py`, and the configuration
+loaders of `run_multi_seed_validation.py`, `run_descriptor_ablation.py` and
+`run_baseline_multiseed.py`) use `results/` when present and otherwise fall back to
+`artifacts/`, so the statistics and figures can be regenerated from a fresh clone.
 
 | Paper element | Artifact | Generator |
 |---|---|---|
@@ -198,17 +259,17 @@ paper element traces to one artifact and one generator script.
 | Table III (multi-seed) | `artifacts/multi_seed/multi_seed_results_fixed.json` | `scripts/run_multi_seed_validation.py` |
 | Descriptor ablation | `artifacts/descriptor_ablation/descriptor_ablation.json` | `scripts/run_descriptor_ablation.py` |
 | ChemBERTa fine-tuning | `artifacts/chemberta_finetune/chemberta_ft_<dataset>_results_fixed.json` | `scripts/run_chemberta_finetune.py` |
-| Imbalance metrics, Figs. S3/S4 | `artifacts/toxicity_extended/toxicity_extended_metrics.json` | `scripts/toxicity_extended_metrics.py` → `scripts/make_toxicity_figures.py`, `scripts/make_real_confusion_matrices.py` |
-| HPO vs. Random Search (Supp. Table S3) | `artifacts/hpo_comparison_clean/robust_analysis.json` | `scripts/run_hpo_comparison_clean.py` → `scripts/analyze_hpo_robust.py` |
+| Imbalance metrics, Supp. Figs. S1/S2 | `artifacts/toxicity_extended/toxicity_extended_metrics.json` | `scripts/toxicity_extended_metrics.py` → `scripts/make_toxicity_figures.py`, `scripts/make_real_confusion_matrices.py` |
+| HPO vs. Random Search (Supp. Table S4) | `artifacts/hpo_comparison_clean/robust_analysis.json` | `scripts/run_hpo_comparison_clean.py` → `scripts/analyze_hpo_robust.py` |
 | Per-optimizer test metrics (Supp. Table S5), Fig. 3 | `artifacts/hpo_comparison_clean/summary.json` (+ 42 per-arm `hpo_<dataset>_<algo>.json` with full trial histories) | `scripts/run_hpo_comparison_clean.py`, `scripts/make_hpo_clean_figure.py` |
-| Architecture screen (Supp. Tables S1/S2, Figs. S1/S2) | `artifacts/architecture_selection/architecture_selection_search.json` | `scripts/run_architecture_selection.py --mode search --epochs 50 --patience 12` → `scripts/make_architecture_figures.py` |
+| Architecture screen (Supp. Tables S1/S3, Supp. Figs. S3/S4) | `artifacts/architecture_selection/architecture_selection_search.json` | `scripts/run_architecture_selection.py --mode search --epochs 50 --patience 12` → `scripts/make_architecture_figures.py` |
 | Fig. 2 (model rankings) | Table II values | `scripts/regenerate_comparison_figures.py` |
 
 Figures referenced by the manuscript live in `paper_final/images/`
 (`architecture.png` = Fig. 1, `foundation_ranking.png` = Fig. 2,
-`01_algorithm_performance.png` = Fig. 3, `arch_selection_summary.png` = Fig. S1,
-`arch_comparison_all_datasets.png` = Fig. S2, `confusion_matrices.png` = Fig. S3,
-`toxicity_metric_stability.png` = Fig. S4).
+`01_algorithm_performance.png` = Fig. 3, `confusion_matrices.png` = Fig. S1,
+`toxicity_metric_stability.png` = Fig. S2, `arch_selection_summary.png` = Fig. S3,
+`arch_comparison_all_datasets.png` = Fig. S4).
 
 ### Audit
 
@@ -221,10 +282,13 @@ python scripts/pre_submission_audit.py
 ### Regenerating from scratch (GPU; run sequentially)
 
 ```bash
+git clone --recurse-submodules https://github.com/NitramVonemats/ADMET-Benchmark.git
+cd ADMET-Benchmark
+pip install -r requirements.txt                    # exact pins: requirements-lock.txt
 python scripts/canonical_split.py                  # 0. canonical splits -> splits/
 python scripts/run_fair_gnn_benchmark.py           # 1. GNN 50-trial search  -> results/fair_model_family/
 python scripts/run_multi_seed_validation.py        # 2. GNN 10 seeds         -> results/multi_seed/
-python scripts/run_baseline_hpo_parity.py          # 3. baselines (needs ChemBERTa HF weights + MolCLR checkpoint in external/MolCLR)
+python scripts/run_baseline_hpo_parity.py          # 3. baselines (ChemBERTa from Hugging Face; MolCLR checkpoint from the submodule)
 python scripts/run_baseline_multiseed.py
 python scripts/run_descriptor_ablation.py          # 4. ablation
 python scripts/run_chemberta_finetune.py           # 5. partial fine-tuning
@@ -247,22 +311,19 @@ numbers are the ones in `artifacts/`.
 ## 4. Repository layout
 
 ```
-optimized_gnn.py          GraphConv model, molecule-level split, training/evaluation (shared by every runner)
-scripts/                  canonical runners, analysis and figure scripts (see table above)
+optimized_gnn.py          GraphConv model, molecule-level split, training/evaluation (shared by every GNN runner)
+foundation_encoders.py    ChemBERTa / MolCLR / Morgan-FP / MolE-FP encoders used by the baselines
+scripts/                  canonical runners, audits, analysis and figure scripts (see table above)
 artifacts/                released copies of the canonical result files
-splits/                   canonical scaffold / molecule-level splits (JSON, one per endpoint)
+splits/                   split membership per endpoint (canonical SMILES, JSON)
 paper_final/images/       manuscript figures
-datasets/, data/          TDC data (downloaded on first use)
-external/MolCLR/          MolCLR pretrained GIN checkpoint
-optimization/, src/       HPO framework and legacy modules
-archive/                  superseded experiments, scripts and documentation (not used by the paper)
-requirements.txt, requirements-lock.txt
+external/MolCLR/          official MolCLR repository (git submodule; pretrained GIN checkpoint)
+requirements.txt, requirements-lock.txt, environment.yml
 ```
 
-`runs/` holds the deprecated pre-audit HPO results (test-selected) and is not consumed
-by any canonical script. `MolE-FP` is Morgan fingerprints + a learned projection
-inspired by MolE, not the pretrained MolE encoder. Only the GNN receives the auxiliary
-RDKit descriptors; the Caco-2 ablation quantifies this asymmetry.
+Earlier exploratory code and the deprecated pre-audit HPO results (`runs/`, selected on
+test data) are not part of the working tree; they remain available in the git history
+under the tag `pre-cleanup`.
 
 ## 5. Environment
 
@@ -275,4 +336,4 @@ pip install -r requirements.txt
 
 ## License
 
-MIT
+MIT, see [LICENSE](LICENSE).
