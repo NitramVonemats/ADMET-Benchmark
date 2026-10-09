@@ -6,7 +6,7 @@ the failure modes the pre-submission audit was created to catch. Exits non-zero 
 any hard failure so it can gate a release / CI.
 
 Checks:
-  1. CANONICAL TABLE IV  - table_IV_median_canonical.csv GNN column == the 10-seed
+  1. CANONICAL TABLE II  - table_IV_median_canonical.csv GNN column == the 10-seed
                            medians recomputed from multi_seed_results_fixed.json.
   2. GNN CONFIG SOURCE   - multiseed / descriptor-ablation load their GNN config from
                            fair_gnn_summary.json (single source of truth), and the
@@ -29,6 +29,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 R = os.path.join(ROOT, "results")
+if not os.path.isdir(R):
+    R = os.path.join(ROOT, "artifacts")
 DATASETS = ["Caco2_Wang", "Half_Life_Obach", "Clearance_Hepatocyte_AZ",
             "Clearance_Microsome_AZ", "tox21", "herg"]
 CLF = {"tox21", "herg"}
@@ -46,7 +48,7 @@ def ok(msg):
 
 
 def check_table_iv():
-    print("-- CHECK 1: canonical Table IV GNN column == multiseed medians --")
+    print("-- CHECK 1: canonical Table II GNN column == multiseed medians --")
     ms = json.load(open(f"{R}/multi_seed/multi_seed_results_fixed.json"))
     import csv
     rows = list(csv.DictReader(open(f"{R}/fair_model_family/table_IV_median_canonical.csv")))
@@ -56,7 +58,7 @@ def check_table_iv():
         expect = round(m["auc_median"] if ds in CLF else m["r2_median"], 3)
         got = round(csv_gnn.get(ds, float("nan")), 3)
         if abs(expect - got) > 1e-3:
-            bad(f"Table IV {ds}: CSV GNN={got} != multiseed median={expect}")
+            bad(f"Table II {ds}: CSV GNN={got} != multiseed median={expect}")
         else:
             ok(f"{ds}: GNN median {got} matches multiseed")
 

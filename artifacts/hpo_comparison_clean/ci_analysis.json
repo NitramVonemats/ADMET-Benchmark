@@ -1,0 +1,92 @@
+{
+  "pso": {
+    "n_datasets": 6,
+    "mean_diff": 0.5553356129816234,
+    "win_tie_loss": [
+      2,
+      0,
+      4
+    ],
+    "ci95": [
+      -0.08375654004532075,
+      1.7594130563837043
+    ],
+    "d_z": 0.38142175252398036,
+    "note": "diff = optimizer_test - random_test (per endpoint metric); positive favors optimizer; selection was validation-only"
+  },
+  "abc": {
+    "n_datasets": 6,
+    "mean_diff": 0.4073489926753822,
+    "win_tie_loss": [
+      5,
+      0,
+      1
+    ],
+    "ci95": [
+      -0.29210510498580794,
+      1.479969569755408
+    ],
+    "d_z": 0.32468353305980585,
+    "note": "diff = optimizer_test - random_test (per endpoint metric); positive favors optimizer; selection was validation-only"
+  },
+  "ga": {
+    "n_datasets": 6,
+    "mean_diff": 0.5507170545072565,
+    "win_tie_loss": [
+      3,
+      0,
+      3
+    ],
+    "ci95": [
+      -0.06320412483177877,
+      1.685086858638315
+    ],
+    "d_z": 0.40120105877202983,
+    "note": "diff = optimizer_test - random_test (per endpoint metric); positive favors optimizer; selection was validation-only"
+  },
+  "sa": {
+    "n_datasets": 6,
+    "mean_diff": 0.18797390429968316,
+    "win_tie_loss": [
+      1,
+      0,
+      5
+    ],
+    "ci95": [
+      -0.6356712917925741,
+      1.3200947858215664
+    ],
+    "d_z": 0.13985266438028368,
+    "note": "diff = optimizer_test - random_test (per endpoint metric); positive favors optimizer; selection was validation-only"
+  },
+  "hc": {
+    "n_datasets": 6,
+    "mean_diff": 0.4157169732045465,
+    "win_tie_loss": [
+      3,
+      0,
+      3
+    ],
+    "ci95": [
+      -0.4401630587785112,
+      1.7002901872773812
+    ],
+    "d_z": 0.27515685079190605,
+    "note": "diff = optimizer_test - random_test (per endpoint metric); positive favors optimizer; selection was validation-only"
+  },
+  "tpe": {
+    "n_datasets": 6,
+    "mean_diff": 0.48600631458072824,
+    "win_tie_loss": [
+      2,
+      0,
+      4
+    ],
+    "ci95": [
+      -0.07537278033784071,
+      1.4702555095266288
+    ],
+    "d_z": 0.40463037586164957,
+    "note": "diff = optimizer_test - random_test (per endpoint metric); positive favors optimizer; selection was validation-only"
+  }
+}

@@ -7,11 +7,11 @@ Reconstructs the ACTUAL splits used by each model family and tests 5 checks:
   2. VAL FROM TRAIN     - GNN val is carved from the TDC *train* side only
   3. SAME SPLIT         - GNN / parity-baseline / ChemBERTa-FT test partitions
   4. NORMALIZATION      - target mu/sigma computed from TRAIN only (numeric check)
-  5. DATASET COUNTS     - TDC totals / retained / partitions vs paper Table III
+  5. DATASET COUNTS     - TDC totals / retained / partitions vs paper Table I
 
 The script calls the REAL pipeline functions:
   - optimized_gnn.prepare_dataset            (GNN)
-  - run_baseline_hpo_parity.prep_split       (Table IV baselines)
+  - run_baseline_hpo_parity.prep_split       (Table II baselines)
   - run_chemberta_finetune.prepare_data      (ChemBERTa fine-tune)
 
 For the GNN, prepare_dataset returns torch_geometric graphs that do NOT carry the
@@ -55,7 +55,7 @@ from tdc.single_pred import ADME, Tox  # noqa: E402
 DATASETS = ["Caco2_Wang", "Half_Life_Obach", "Clearance_Hepatocyte_AZ",
             "Clearance_Microsome_AZ", "tox21", "herg"]
 
-# Paper Table III "Used" counts (train+val+test retained).
+# Paper Table I "Used" counts (train+val+test retained).
 PAPER_USED = {"Caco2_Wang": 819, "Half_Life_Obach": 601,
               "Clearance_Hepatocyte_AZ": 1092, "Clearance_Microsome_AZ": 992,
               "tox21": 6533, "herg": 590}
@@ -243,7 +243,7 @@ def main():
                             f"train-only ({mu_train:.6f},{sig_train:.6f})")
 
         # ================= CHECK 5: dataset counts =========================
-        print("  -- CHECK 5: dataset counts vs paper Table III --")
+        print("  -- CHECK 5: dataset counts vs paper Table I --")
         split = gnn["split_obj"]
         tdc_total = len(split["train"]) + len(split["valid"]) + len(split["test"])
         used = gnn_real_counts[0] + gnn_real_counts[1] + gnn_real_counts[2]
@@ -251,7 +251,7 @@ def main():
         print(f"     TDC total (tr+va+te)={tdc_total}  "
               f"TDC parts={len(split['train'])}/{len(split['valid'])}/{len(split['test'])}")
         print(f"     GNN used (tr+va+te)={used}  [tr/va/te={gnn_real_counts}]  "
-              f"paper Table III={paper}  match={used==paper}")
+              f"paper Table I={paper}  match={used==paper}")
         if is_clf:
             y_all = np.array([g.original_y for g in cache["train"]] +
                              [g.original_y for g in cache["val"]] +

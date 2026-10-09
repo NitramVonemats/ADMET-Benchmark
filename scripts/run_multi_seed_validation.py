@@ -12,8 +12,8 @@ model-comparison, HPO, and imbalance-metric tables. Regression metric is the
 original-scale RMSE returned by optimized_gnn.evaluate (identical definition to the
 rest of the study); classification metric is AUC-ROC.
 
-Outputs -> results/multi_seed/ (gitignored); promoted artifact lives under
-paper_final/reproduction/artifacts/multi_seed/.
+Outputs -> results/multi_seed/ (gitignored); the released copy lives under
+artifacts/multi_seed/.
 """
 
 import os

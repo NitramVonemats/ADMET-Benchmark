@@ -1,0 +1,34 @@
+{
+  "dataset": "Caco2_Wang",
+  "task_type": "regression",
+  "best_val_metric": 0.4394521925174569,
+  "epochs_trained": 30,
+  "finetune": {
+    "protocol": "partial task-specific fine-tuning",
+    "unfreeze_layers": 2,
+    "lr_encoder": 1e-05,
+    "lr_head": 0.001,
+    "max_epochs": 30,
+    "trainable_params": 14980353,
+    "total_params": 44317953,
+    "trainable_frac": 0.33801996676155144
+  },
+  "preprocessing": {
+    "split_method": "canonical (scripts/canonical_split.py): scaffold test + molecule-level val carve; identical partition to the GNN benchmark",
+    "split_hash": {
+      "train": "d290b584f8f3",
+      "val": "fc85bfd61a32",
+      "test": "cd31361ef76a"
+    },
+    "norm_fit_on": "train-only",
+    "clip_min": null,
+    "mu": -5.1907172203063965,
+    "sigma": 0.7896653413772583
+  },
+  "test_rmse_orig": 0.002936538679896384,
+  "test_rmse_log": 0.5131315863740691,
+  "test_mae_log": 0.41544994711875916,
+  "test_r2_orig": 0.38966846466064453,
+  "test_r2_log": 0.44109684228897095,
+  "test_metric": 0.5131315863740691
+}

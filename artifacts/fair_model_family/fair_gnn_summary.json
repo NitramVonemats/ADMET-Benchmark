@@ -1,0 +1,104 @@
+{
+  "Caco2_Wang": {
+    "selected_config": {
+      "hidden_dim": 96,
+      "num_layers": 4,
+      "head_dims": [
+        512,
+        256,
+        32
+      ],
+      "lr": 0.004243543996893525,
+      "weight_decay": 1.867726776523694e-05
+    },
+    "test": 0.4161805510520935,
+    "val_select": 0.0024894303642213345,
+    "task": "regression",
+    "n_trials": 50
+  },
+  "Half_Life_Obach": {
+    "selected_config": {
+      "hidden_dim": 512,
+      "num_layers": 6,
+      "head_dims": [
+        192,
+        96,
+        64
+      ],
+      "lr": 0.0007261777752229256,
+      "weight_decay": 1.237240728333582e-06
+    },
+    "test": 0.04195350408554077,
+    "val_select": 7.9036383628845215,
+    "task": "regression",
+    "n_trials": 50
+  },
+  "Clearance_Hepatocyte_AZ": {
+    "selected_config": {
+      "hidden_dim": 96,
+      "num_layers": 5,
+      "head_dims": [
+        256,
+        64,
+        64
+      ],
+      "lr": 0.006703115611025536,
+      "weight_decay": 2.359416274037929e-05
+    },
+    "test": -0.35723721981048584,
+    "val_select": 43.21060562133789,
+    "task": "regression",
+    "n_trials": 50
+  },
+  "Clearance_Microsome_AZ": {
+    "selected_config": {
+      "hidden_dim": 192,
+      "num_layers": 4,
+      "head_dims": [
+        256,
+        96,
+        32
+      ],
+      "lr": 0.0018100778858155008,
+      "weight_decay": 0.001396447598235097
+    },
+    "test": 0.13707691431045532,
+    "val_select": 38.33353805541992,
+    "task": "regression",
+    "n_trials": 50
+  },
+  "tox21": {
+    "selected_config": {
+      "hidden_dim": 96,
+      "num_layers": 4,
+      "head_dims": [
+        128,
+        64,
+        32
+      ],
+      "lr": 0.0001417772102090476,
+      "weight_decay": 0.00014282366403747904
+    },
+    "test": 0.7039399930698518,
+    "val_select": 0.8442190669371198,
+    "task": "classification",
+    "n_trials": 50
+  },
+  "herg": {
+    "selected_config": {
+      "hidden_dim": 512,
+      "num_layers": 7,
+      "head_dims": [
+        192,
+        96,
+        96
+      ],
+      "lr": 0.002584098930262131,
+      "weight_decay": 0.00021556900164166473
+    },
+    "test": 0.8175257731958763,
+    "val_select": 0.9461206896551725,
+    "task": "classification",
+    "n_trials": 50
+  }
+}

@@ -36,7 +36,7 @@ ACTIVE = [
     "scripts/run_chemberta_finetune.py",
     "scripts/run_baseline_hpo_parity.py",
     "scripts/run_baseline_multiseed.py",
-    "paper_final/reproduction/toxicity_extended_metrics.py",
+    "scripts/toxicity_extended_metrics.py",
 ]
 FAIL = []
 
@@ -95,6 +95,8 @@ def check_backup():
     files = glob.glob(os.path.join(d, "**", "*.*"), recursive=True)
     if files:
         print(f"  [ok] {len(files)} raw backup file(s) under results/_raw_backup_preaudit/")
+    elif not os.path.isdir(os.path.join(ROOT, "results")):
+        print("  [skip] results/ not present in this checkout (artifacts/ is the released copy)")
     else:
         FAIL.append("raw pre-audit backup missing")
         print("  [FAIL] no raw pre-audit backup found")

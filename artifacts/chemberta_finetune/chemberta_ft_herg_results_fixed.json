@@ -1,0 +1,30 @@
+{
+  "dataset": "herg",
+  "task_type": "classification",
+  "best_val_metric": 0.7219827586206896,
+  "epochs_trained": 15,
+  "finetune": {
+    "protocol": "partial task-specific fine-tuning",
+    "unfreeze_layers": 2,
+    "lr_encoder": 1e-05,
+    "lr_head": 0.001,
+    "max_epochs": 30,
+    "trainable_params": 14980353,
+    "total_params": 44317953,
+    "trainable_frac": 0.33801996676155144
+  },
+  "preprocessing": {
+    "split_method": "canonical (scripts/canonical_split.py): scaffold test + molecule-level val carve; identical partition to the GNN benchmark",
+    "split_hash": {
+      "train": "36b0df16013e",
+      "val": "5e83e6507aeb",
+      "test": "03e409f47d6e"
+    },
+    "norm_fit_on": "train-only",
+    "clip_min": 0.001,
+    "mu": 0.0,
+    "sigma": 1.0
+  },
+  "test_auc": 0.7703976435935199,
+  "test_metric": 0.7703976435935199
+}

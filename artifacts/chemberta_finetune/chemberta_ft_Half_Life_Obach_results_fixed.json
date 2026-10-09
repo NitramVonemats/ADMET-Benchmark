@@ -1,0 +1,34 @@
+{
+  "dataset": "Half_Life_Obach",
+  "task_type": "regression",
+  "best_val_metric": 1.0316871525687676,
+  "epochs_trained": 22,
+  "finetune": {
+    "protocol": "partial task-specific fine-tuning",
+    "unfreeze_layers": 2,
+    "lr_encoder": 1e-05,
+    "lr_head": 0.001,
+    "max_epochs": 30,
+    "trainable_params": 14980353,
+    "total_params": 44317953,
+    "trainable_frac": 0.33801996676155144
+  },
+  "preprocessing": {
+    "split_method": "canonical (scripts/canonical_split.py): scaffold test + molecule-level val carve; identical partition to the GNN benchmark",
+    "split_hash": {
+      "train": "93e6ec6f80e8",
+      "val": "5326e1acbba1",
+      "test": "6b079c1010be"
+    },
+    "norm_fit_on": "train-only",
+    "clip_min": 0.001,
+    "mu": 1.589898991839477,
+    "sigma": 1.3854682002468734
+  },
+  "test_rmse_orig": 22.55662227586599,
+  "test_rmse_log": 1.3048861232487747,
+  "test_mae_log": 0.966585636138916,
+  "test_r2_orig": -0.08060228824615479,
+  "test_r2_log": -0.0755455493927002,
+  "test_metric": 1.3048861232487747
+}

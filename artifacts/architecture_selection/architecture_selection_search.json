@@ -1,0 +1,1255 @@
+{
+  "config": {
+    "mode": "search",
+    "epochs": 50,
+    "patience": 12,
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "search_seed": 42,
+    "attention_heads": 4,
+    "config_grid": [
+      {
+        "hidden_dim": 128,
+        "num_layers": 5,
+        "head_dims": [
+          256,
+          128,
+          64
+        ],
+        "lr": 0.001
+      },
+      {
+        "hidden_dim": 96,
+        "num_layers": 3,
+        "head_dims": [
+          192,
+          96,
+          64
+        ],
+        "lr": 0.002
+      },
+      {
+        "hidden_dim": 192,
+        "num_layers": 5,
+        "head_dims": [
+          384,
+          192,
+          96
+        ],
+        "lr": 0.0005
+      },
+      {
+        "hidden_dim": 256,
+        "num_layers": 4,
+        "head_dims": [
+          384,
+          128,
+          64
+        ],
+        "lr": 0.001
+      },
+      {
+        "hidden_dim": 64,
+        "num_layers": 6,
+        "head_dims": [
+          128,
+          96,
+          64
+        ],
+        "lr": 0.001
+      }
+    ],
+    "base": {
+      "batch_train": 32,
+      "val_fraction": 0.1
+    }
+  },
+  "total_runs": 240,
+  "results": {
+    "herg": {
+      "task": "classification",
+      "architectures": {
+        "GraphConv": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 4.598306655883789,
+          "n_params_mean": 548353,
+          "auc_roc_mean": 0.7265095729013255,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8571428571428571,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7727272727272727,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.9181034482758621,
+          "val_f1": 0.9032258064516129
+        },
+        "GCN": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 2.8892505168914795,
+          "n_params_mean": 85505,
+          "auc_roc_mean": 0.7938144329896908,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8111111111111111,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7424242424242424,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.9116379310344828,
+          "val_f1": 0.9152542372881356
+        },
+        "GAT": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 6.297186374664307,
+          "n_params_mean": 854017,
+          "auc_roc_mean": 0.7471281296023564,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8648648648648649,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7727272727272727,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.9073275862068965,
+          "val_f1": 0.8709677419354839
+        },
+        "GraphSAGE": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 3.2728934288024902,
+          "n_params_mean": 548353,
+          "auc_roc_mean": 0.8125184094256259,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8625592417061612,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7803030303030303,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.9030172413793104,
+          "val_f1": 0.9180327868852459
+        },
+        "GIN": {
+          "selected_config": {
+            "hidden_dim": 128,
+            "num_layers": 5,
+            "head_dims": [
+              256,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 3.183628797531128,
+          "n_params_mean": 262790,
+          "auc_roc_mean": 0.7234167893961708,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8543689320388349,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7727272727272727,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8836206896551724,
+          "val_f1": 0.9333333333333333
+        },
+        "TAG": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 4.270338296890259,
+          "n_params_mean": 1059201,
+          "auc_roc_mean": 0.7602356406480117,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8625592417061612,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7803030303030303,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8922413793103449,
+          "val_f1": 0.896551724137931
+        },
+        "SGC": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 3.719385862350464,
+          "n_params_mean": 399361,
+          "auc_roc_mean": 0.7531664212076583,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8744186046511628,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7954545454545454,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.9202586206896552,
+          "val_f1": 0.875
+        },
+        "Transformer": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 4.461225748062134,
+          "n_params_mean": 316321,
+          "auc_roc_mean": 0.7840942562592047,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.8695652173913043,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.7954545454545454,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.9051724137931034,
+          "val_f1": 0.8813559322033898
+        }
+      }
+    },
+    "Caco2_Wang": {
+      "task": "regression",
+      "architectures": {
+        "GraphConv": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 9.074601411819458,
+          "n_params_mean": 103169,
+          "rmse_mean": 0.0026363853830844164,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0019503893563523889,
+          "mae_std": 0.0,
+          "r2_mean": 0.5080599188804626,
+          "r2_std": 0.0,
+          "val_rmse": 0.0025760799180716276,
+          "val_r2": 0.5748559832572937
+        },
+        "GCN": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 16.730568647384644,
+          "n_params_mean": 58785,
+          "rmse_mean": 0.0026046489365398884,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0018878713017329574,
+          "mae_std": 0.0,
+          "r2_mean": 0.5198324918746948,
+          "r2_std": 0.0,
+          "val_rmse": 0.0026972831692546606,
+          "val_r2": 0.5339092016220093
+        },
+        "GAT": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 8.411247491836548,
+          "n_params_mean": 143873,
+          "rmse_mean": 0.002991498913615942,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0024310278240591288,
+          "mae_std": 0.0,
+          "r2_mean": 0.3666086792945862,
+          "r2_std": 0.0,
+          "val_rmse": 0.0027576168067753315,
+          "val_r2": 0.5128247141838074
+        },
+        "GraphSAGE": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 5.312395811080933,
+          "n_params_mean": 103169,
+          "rmse_mean": 0.002959343371912837,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0022950347047299147,
+          "mae_std": 0.0,
+          "r2_mean": 0.38015222549438477,
+          "r2_std": 0.0,
+          "val_rmse": 0.002508292207494378,
+          "val_r2": 0.5969362854957581
+        },
+        "GIN": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 8.069181203842163,
+          "n_params_mean": 111908,
+          "rmse_mean": 0.0026346168015152216,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0019447964150458574,
+          "mae_std": 0.0,
+          "r2_mean": 0.5087197422981262,
+          "r2_std": 0.0,
+          "val_rmse": 0.0024198079481720924,
+          "val_r2": 0.6248722076416016
+        },
+        "TAG": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 20.98232102394104,
+          "n_params_mean": 121761,
+          "rmse_mean": 0.0026599394623190165,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0019012290285900235,
+          "mae_std": 0.0,
+          "r2_mean": 0.49923044443130493,
+          "r2_std": 0.0,
+          "val_rmse": 0.002553836442530155,
+          "val_r2": 0.5821661949157715
+        },
+        "SGC": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 17.985201597213745,
+          "n_params_mean": 58785,
+          "rmse_mean": 0.0024965417105704546,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0018348926678299904,
+          "mae_std": 0.0,
+          "r2_mean": 0.5588644742965698,
+          "r2_std": 0.0,
+          "val_rmse": 0.002621476538479328,
+          "val_r2": 0.5597398281097412
+        },
+        "Transformer": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 22.32822036743164,
+          "n_params_mean": 315297,
+          "rmse_mean": 0.0027033770456910133,
+          "rmse_std": 0.0,
+          "mae_mean": 0.0019885047804564238,
+          "mae_std": 0.0,
+          "r2_mean": 0.48274147510528564,
+          "r2_std": 0.0,
+          "val_rmse": 0.002480757422745228,
+          "val_r2": 0.6057369709014893
+        }
+      }
+    },
+    "Half_Life_Obach": {
+      "task": "regression",
+      "architectures": {
+        "GraphConv": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 2.680300235748291,
+          "n_params_mean": 661889,
+          "rmse_mean": 20.50341033935547,
+          "rmse_std": 0.0,
+          "mae_mean": 8.297883987426758,
+          "mae_std": 0.0,
+          "r2_mean": 0.10716754198074341,
+          "r2_std": 0.0,
+          "val_rmse": 9.407806396484375,
+          "val_r2": 0.46015268564224243
+        },
+        "GCN": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 12.465540409088135,
+          "n_params_mean": 59809,
+          "rmse_mean": 21.81203269958496,
+          "rmse_std": 0.0,
+          "mae_mean": 8.921860694885254,
+          "mae_std": 0.0,
+          "r2_mean": -0.010438799858093262,
+          "r2_std": 0.0,
+          "val_rmse": 9.52033805847168,
+          "val_r2": 0.44716066122055054
+        },
+        "GAT": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 14.597210168838501,
+          "n_params_mean": 125857,
+          "rmse_mean": 20.710575103759766,
+          "rmse_std": 0.0,
+          "mae_mean": 11.361079216003418,
+          "mae_std": 0.0,
+          "r2_mean": 0.08903419971466064,
+          "r2_std": 0.0,
+          "val_rmse": 9.207626342773438,
+          "val_r2": 0.4828820824623108
+        },
+        "GraphSAGE": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 7.732602119445801,
+          "n_params_mean": 661889,
+          "rmse_mean": 20.759807586669922,
+          "rmse_std": 0.0,
+          "mae_mean": 8.196844100952148,
+          "mae_std": 0.0,
+          "r2_mean": 0.08469808101654053,
+          "r2_std": 0.0,
+          "val_rmse": 9.631011962890625,
+          "val_r2": 0.4342324733734131
+        },
+        "GIN": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 3.5991599559783936,
+          "n_params_mean": 113444,
+          "rmse_mean": 19.08808708190918,
+          "rmse_std": 0.0,
+          "mae_mean": 9.187363624572754,
+          "mae_std": 0.0,
+          "r2_mean": 0.22617536783218384,
+          "r2_std": 0.0,
+          "val_rmse": 10.181808471679688,
+          "val_r2": 0.36766964197158813
+        },
+        "TAG": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 7.831990957260132,
+          "n_params_mean": 846337,
+          "rmse_mean": 20.069276809692383,
+          "rmse_std": 0.0,
+          "mae_mean": 9.45760726928711,
+          "mae_std": 0.0,
+          "r2_mean": 0.14457660913467407,
+          "r2_std": 0.0,
+          "val_rmse": 9.860328674316406,
+          "val_r2": 0.4069696068763733
+        },
+        "SGC": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 8.926440477371216,
+          "n_params_mean": 59809,
+          "rmse_mean": 20.078094482421875,
+          "rmse_std": 0.0,
+          "mae_mean": 8.827237129211426,
+          "mae_std": 0.0,
+          "r2_mean": 0.14382469654083252,
+          "r2_std": 0.0,
+          "val_rmse": 9.698776245117188,
+          "val_r2": 0.4262429475784302
+        },
+        "Transformer": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 9.565775394439697,
+          "n_params_mean": 2198785,
+          "rmse_mean": 21.552824020385742,
+          "rmse_std": 0.0,
+          "mae_mean": 8.385942459106445,
+          "mae_std": 0.0,
+          "r2_mean": 0.013434171676635742,
+          "r2_std": 0.0,
+          "val_rmse": 10.439481735229492,
+          "val_r2": 0.33525967597961426
+        }
+      }
+    },
+    "Clearance_Microsome_AZ": {
+      "task": "regression",
+      "architectures": {
+        "GraphConv": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 4.402982711791992,
+          "n_params_mean": 80801,
+          "rmse_mean": 86.52263641357422,
+          "rmse_std": 0.0,
+          "mae_mean": 30.84381103515625,
+          "mae_std": 0.0,
+          "r2_mean": -3.033662796020508,
+          "r2_std": 0.0,
+          "val_rmse": 40.51778793334961,
+          "val_r2": 0.08110487461090088
+        },
+        "GCN": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 6.104355096817017,
+          "n_params_mean": 399361,
+          "rmse_mean": 39.1672477722168,
+          "rmse_std": 0.0,
+          "mae_mean": 24.08617401123047,
+          "mae_std": 0.0,
+          "r2_mean": 0.17341750860214233,
+          "r2_std": 0.0,
+          "val_rmse": 39.27412796020508,
+          "val_r2": 0.13664859533309937
+        },
+        "GAT": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 10.718346118927002,
+          "n_params_mean": 1067393,
+          "rmse_mean": 40.68809509277344,
+          "rmse_std": 0.0,
+          "mae_mean": 23.13113021850586,
+          "mae_std": 0.0,
+          "r2_mean": 0.10797953605651855,
+          "r2_std": 0.0,
+          "val_rmse": 39.5956916809082,
+          "val_r2": 0.12245309352874756
+        },
+        "GraphSAGE": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 5.592162847518921,
+          "n_params_mean": 661889,
+          "rmse_mean": 41.15555953979492,
+          "rmse_std": 0.0,
+          "mae_mean": 27.442302703857422,
+          "mae_std": 0.0,
+          "r2_mean": 0.08736509084701538,
+          "r2_std": 0.0,
+          "val_rmse": 38.390098571777344,
+          "val_r2": 0.17507779598236084
+        },
+        "GIN": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 5.856666326522827,
+          "n_params_mean": 113444,
+          "rmse_mean": 122.4682388305664,
+          "rmse_std": 0.0,
+          "mae_mean": 30.596149444580078,
+          "mae_std": 0.0,
+          "r2_mean": -7.08140754699707,
+          "r2_std": 0.0,
+          "val_rmse": 41.015594482421875,
+          "val_r2": 0.058386921882629395
+        },
+        "TAG": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 8.941584587097168,
+          "n_params_mean": 1059201,
+          "rmse_mean": 37.97573471069336,
+          "rmse_std": 0.0,
+          "mae_mean": 24.272218704223633,
+          "mae_std": 0.0,
+          "r2_mean": 0.22294378280639648,
+          "r2_std": 0.0,
+          "val_rmse": 35.89667510986328,
+          "val_r2": 0.2787548899650574
+        },
+        "SGC": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 8.583268642425537,
+          "n_params_mean": 463233,
+          "rmse_mean": 40.89686584472656,
+          "rmse_std": 0.0,
+          "mae_mean": 22.91692543029785,
+          "mae_std": 0.0,
+          "r2_mean": 0.09880208969116211,
+          "r2_std": 0.0,
+          "val_rmse": 38.769046783447266,
+          "val_r2": 0.15871191024780273
+        },
+        "Transformer": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 14.342438459396362,
+          "n_params_mean": 316321,
+          "rmse_mean": 39.74573516845703,
+          "rmse_std": 0.0,
+          "mae_mean": 27.415653228759766,
+          "mae_std": 0.0,
+          "r2_mean": 0.14882045984268188,
+          "r2_std": 0.0,
+          "val_rmse": 37.62013626098633,
+          "val_r2": 0.20783579349517822
+        }
+      }
+    },
+    "Clearance_Hepatocyte_AZ": {
+      "task": "regression",
+      "architectures": {
+        "GraphConv": {
+          "selected_config": {
+            "hidden_dim": 64,
+            "num_layers": 6,
+            "head_dims": [
+              128,
+              96,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 12.18231725692749,
+          "n_params_mean": 80801,
+          "rmse_mean": 54.15180587768555,
+          "rmse_std": 0.0,
+          "mae_mean": 42.19739532470703,
+          "mae_std": 0.0,
+          "r2_mean": -0.27244019508361816,
+          "r2_std": 0.0,
+          "val_rmse": 44.41679382324219,
+          "val_r2": 0.2667850852012634
+        },
+        "GCN": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 16.06562638282776,
+          "n_params_mean": 85505,
+          "rmse_mean": 100.397216796875,
+          "rmse_std": 0.0,
+          "mae_mean": 40.885353088378906,
+          "mae_std": 0.0,
+          "r2_mean": -3.373758316040039,
+          "r2_std": 0.0,
+          "val_rmse": 45.02116775512695,
+          "val_r2": 0.24669593572616577
+        },
+        "GAT": {
+          "selected_config": {
+            "hidden_dim": 128,
+            "num_layers": 5,
+            "head_dims": [
+              256,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 25.952369451522827,
+          "n_params_mean": 385025,
+          "rmse_mean": 49.201595306396484,
+          "rmse_std": 0.0,
+          "mae_mean": 33.89105987548828,
+          "mae_std": 0.0,
+          "r2_mean": -0.05043649673461914,
+          "r2_std": 0.0,
+          "val_rmse": 45.43473434448242,
+          "val_r2": 0.23279249668121338
+        },
+        "GraphSAGE": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 10.686254024505615,
+          "n_params_mean": 548353,
+          "rmse_mean": 51.91542434692383,
+          "rmse_std": 0.0,
+          "mae_mean": 38.09982681274414,
+          "mae_std": 0.0,
+          "r2_mean": -0.1695108413696289,
+          "r2_std": 0.0,
+          "val_rmse": 42.90705871582031,
+          "val_r2": 0.31578218936920166
+        },
+        "GIN": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 7.101146697998047,
+          "n_params_mean": 113444,
+          "rmse_mean": 46.5912971496582,
+          "rmse_std": 0.0,
+          "mae_mean": 37.09636306762695,
+          "mae_std": 0.0,
+          "r2_mean": 0.05806469917297363,
+          "r2_std": 0.0,
+          "val_rmse": 47.61579132080078,
+          "val_r2": 0.15736627578735352
+        },
+        "TAG": {
+          "selected_config": {
+            "hidden_dim": 128,
+            "num_layers": 5,
+            "head_dims": [
+              256,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 10.972996950149536,
+          "n_params_mean": 379905,
+          "rmse_mean": 47.150516510009766,
+          "rmse_std": 0.0,
+          "mae_mean": 34.878761291503906,
+          "mae_std": 0.0,
+          "r2_mean": 0.03531754016876221,
+          "r2_std": 0.0,
+          "val_rmse": 45.566978454589844,
+          "val_r2": 0.22831982374191284
+        },
+        "SGC": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 14.87688159942627,
+          "n_params_mean": 399361,
+          "rmse_mean": 64.00135803222656,
+          "rmse_std": 0.0,
+          "mae_mean": 39.30453872680664,
+          "mae_std": 0.0,
+          "r2_mean": -0.7774190902709961,
+          "r2_std": 0.0,
+          "val_rmse": 46.567405700683594,
+          "val_r2": 0.19406330585479736
+        },
+        "Transformer": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 19.17488408088684,
+          "n_params_mean": 319361,
+          "rmse_mean": 74.87036895751953,
+          "rmse_std": 0.0,
+          "mae_mean": 49.33097839355469,
+          "mae_std": 0.0,
+          "r2_mean": -1.432379961013794,
+          "r2_std": 0.0,
+          "val_rmse": 42.53882598876953,
+          "val_r2": 0.32747596502304077
+        }
+      }
+    },
+    "tox21": {
+      "task": "classification",
+      "architectures": {
+        "GraphConv": {
+          "selected_config": {
+            "hidden_dim": 128,
+            "num_layers": 5,
+            "head_dims": [
+              256,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 47.258591175079346,
+          "n_params_mean": 246785,
+          "auc_roc_mean": 0.7334135056358411,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.5,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.9669649002064694,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8189317106152806,
+          "val_f1": 0.48
+        },
+        "GCN": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 29.045557737350464,
+          "n_params_mean": 85505,
+          "auc_roc_mean": 0.7546829457206335,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.41304347826086957,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.9628355127322781,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8212305611899932,
+          "val_f1": 0.43478260869565216
+        },
+        "GAT": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 62.358595848083496,
+          "n_params_mean": 1067393,
+          "auc_roc_mean": 0.7262897209596217,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.44036697247706424,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.9580178940123881,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8186612576064909,
+          "val_f1": 0.5
+        },
+        "GraphSAGE": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 34.32192063331604,
+          "n_params_mean": 548353,
+          "auc_roc_mean": 0.7258616823953853,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.30952380952380953,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.9600825877494839,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8538201487491548,
+          "val_f1": 0.42105263157894735
+        },
+        "GIN": {
+          "selected_config": {
+            "hidden_dim": 256,
+            "num_layers": 4,
+            "head_dims": [
+              384,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 38.109511613845825,
+          "n_params_mean": 726405,
+          "auc_roc_mean": 0.7321395813375187,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.4166666666666667,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.961459050240881,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8444895199459094,
+          "val_f1": 0.5
+        },
+        "TAG": {
+          "selected_config": {
+            "hidden_dim": 128,
+            "num_layers": 5,
+            "head_dims": [
+              256,
+              128,
+              64
+            ],
+            "lr": 0.001
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 76.74933624267578,
+          "n_params_mean": 379905,
+          "auc_roc_mean": 0.7408837977212042,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.5148514851485149,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.9662766689607708,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8208248816768087,
+          "val_f1": 0.4444444444444444
+        },
+        "SGC": {
+          "selected_config": {
+            "hidden_dim": 192,
+            "num_layers": 5,
+            "head_dims": [
+              384,
+              192,
+              96
+            ],
+            "lr": 0.0005
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 69.22095322608948,
+          "n_params_mean": 399361,
+          "auc_roc_mean": 0.6889178777440329,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.43010752688172044,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.9635237439779766,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.8294793779580798,
+          "val_f1": 0.5
+        },
+        "Transformer": {
+          "selected_config": {
+            "hidden_dim": 96,
+            "num_layers": 3,
+            "head_dims": [
+              192,
+              96,
+              64
+            ],
+            "lr": 0.002
+          },
+          "seed": 42,
+          "n_configs_tried": 5,
+          "train_time_mean": 83.66577529907227,
+          "n_params_mean": 319361,
+          "auc_roc_mean": 0.7015857809665519,
+          "auc_roc_std": 0.0,
+          "f1_mean": 0.5,
+          "f1_std": 0.0,
+          "accuracy_mean": 0.9655884377150723,
+          "accuracy_std": 0.0,
+          "val_auc_roc": 0.7778228532792427,
+          "val_f1": 0.48
+        }
+      }
+    }
+  }
+}

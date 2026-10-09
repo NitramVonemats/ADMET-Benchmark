@@ -1,0 +1,34 @@
+{
+  "dataset": "Clearance_Hepatocyte_AZ",
+  "task_type": "regression",
+  "best_val_metric": 1.184852912321084,
+  "epochs_trained": 18,
+  "finetune": {
+    "protocol": "partial task-specific fine-tuning",
+    "unfreeze_layers": 2,
+    "lr_encoder": 1e-05,
+    "lr_head": 0.001,
+    "max_epochs": 30,
+    "trainable_params": 14980353,
+    "total_params": 44317953,
+    "trainable_frac": 0.33801996676155144
+  },
+  "preprocessing": {
+    "split_method": "canonical (scripts/canonical_split.py): scaffold test + molecule-level val carve; identical partition to the GNN benchmark",
+    "split_hash": {
+      "train": "bd4f61d685c3",
+      "val": "a404ce96fcb5",
+      "test": "ea78df8c2661"
+    },
+    "norm_fit_on": "train-only",
+    "clip_min": 0.001,
+    "mu": 3.0091444666635643,
+    "sigma": 1.3378346171170399
+  },
+  "test_rmse_orig": 53.58808506868038,
+  "test_rmse_log": 1.4866111375647852,
+  "test_mae_log": 1.1862488985061646,
+  "test_r2_orig": -0.246085524559021,
+  "test_r2_log": -0.22484636306762695,
+  "test_metric": 1.4866111375647852
+}

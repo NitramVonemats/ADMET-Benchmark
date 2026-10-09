@@ -1,0 +1,34 @@
+{
+  "dataset": "Clearance_Microsome_AZ",
+  "task_type": "regression",
+  "best_val_metric": 1.0345559160765911,
+  "epochs_trained": 22,
+  "finetune": {
+    "protocol": "partial task-specific fine-tuning",
+    "unfreeze_layers": 2,
+    "lr_encoder": 1e-05,
+    "lr_head": 0.001,
+    "max_epochs": 30,
+    "trainable_params": 14980353,
+    "total_params": 44317953,
+    "trainable_frac": 0.33801996676155144
+  },
+  "preprocessing": {
+    "split_method": "canonical (scripts/canonical_split.py): scaffold test + molecule-level val carve; identical partition to the GNN benchmark",
+    "split_hash": {
+      "train": "a605da914254",
+      "val": "842156999278",
+      "test": "2b5ea7555023"
+    },
+    "norm_fit_on": "train-only",
+    "clip_min": 0.001,
+    "mu": 2.779579340287072,
+    "sigma": 1.34855608201716
+  },
+  "test_rmse_orig": 42.8890325865592,
+  "test_rmse_log": 1.31168699061358,
+  "test_mae_log": 1.0026309490203857,
+  "test_r2_orig": 0.008865594863891602,
+  "test_r2_log": 0.045438170433044434,
+  "test_metric": 1.31168699061358
+}

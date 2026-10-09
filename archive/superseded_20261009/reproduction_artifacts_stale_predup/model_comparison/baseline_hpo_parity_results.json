@@ -1,0 +1,543 @@
+[
+  {
+    "dataset": "Caco2_Wang",
+    "baseline": "ChemBERTa",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        384,
+        128
+      ],
+      "learning_rate_init": 0.001214380539778398,
+      "alpha": 0.0033256102959751893
+    },
+    "val_metric": 0.5028069643220348,
+    "train_size": 637,
+    "test_size": 182,
+    "emb_dim": 768,
+    "test_r2": 0.5253542910242921,
+    "metric": 0.5253542910242921
+  },
+  {
+    "dataset": "Caco2_Wang",
+    "baseline": "MolCLR",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        128,
+        64
+      ],
+      "learning_rate_init": 0.0015446089075047077,
+      "alpha": 0.0003550012525851159
+    },
+    "val_metric": 0.5199107086622705,
+    "train_size": 637,
+    "test_size": 182,
+    "emb_dim": 512,
+    "test_r2": 0.3270545503054003,
+    "metric": 0.3270545503054003
+  },
+  {
+    "dataset": "Caco2_Wang",
+    "baseline": "Morgan-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128
+      ],
+      "learning_rate_init": 0.00788671412999049,
+      "alpha": 0.0017123375973163968
+    },
+    "val_metric": 0.48685986227121525,
+    "train_size": 637,
+    "test_size": 182,
+    "emb_dim": 2048,
+    "test_r2": 0.2981112995253923,
+    "metric": 0.2981112995253923
+  },
+  {
+    "dataset": "Caco2_Wang",
+    "baseline": "MolE-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128
+      ],
+      "learning_rate_init": 0.0008771429187378855,
+      "alpha": 1.0048043533223178e-06
+    },
+    "val_metric": 0.355318492086097,
+    "train_size": 637,
+    "test_size": 182,
+    "emb_dim": 256,
+    "test_r2": 0.12353182535600915,
+    "metric": 0.12353182535600915
+  },
+  {
+    "dataset": "Half_Life_Obach",
+    "baseline": "ChemBERTa",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128,
+        64
+      ],
+      "learning_rate_init": 0.007114476009343417,
+      "alpha": 0.0008471801418819973
+    },
+    "val_metric": -0.034660852165151246,
+    "train_size": 466,
+    "test_size": 135,
+    "emb_dim": 768,
+    "test_r2": -0.5693601119826643,
+    "metric": -0.5693601119826643
+  },
+  {
+    "dataset": "Half_Life_Obach",
+    "baseline": "MolCLR",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        512,
+        256
+      ],
+      "learning_rate_init": 0.007866216981266841,
+      "alpha": 0.00026800135558226965
+    },
+    "val_metric": -0.006211274272464484,
+    "train_size": 466,
+    "test_size": 135,
+    "emb_dim": 512,
+    "test_r2": -0.22806745122472183,
+    "metric": -0.22806745122472183
+  },
+  {
+    "dataset": "Half_Life_Obach",
+    "baseline": "Morgan-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        128,
+        64
+      ],
+      "learning_rate_init": 0.0015446089075047077,
+      "alpha": 0.0003550012525851159
+    },
+    "val_metric": 0.16127286464260593,
+    "train_size": 466,
+    "test_size": 135,
+    "emb_dim": 2048,
+    "test_r2": -3.9239510071011283,
+    "metric": -3.9239510071011283
+  },
+  {
+    "dataset": "Half_Life_Obach",
+    "baseline": "MolE-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        384,
+        128
+      ],
+      "learning_rate_init": 0.0019158219548093157,
+      "alpha": 0.00017583640270008504
+    },
+    "val_metric": -0.011250041016107826,
+    "train_size": 466,
+    "test_size": 135,
+    "emb_dim": 256,
+    "test_r2": -5.324917838359155,
+    "metric": -5.324917838359155
+  },
+  {
+    "dataset": "Clearance_Hepatocyte_AZ",
+    "baseline": "ChemBERTa",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        384,
+        128
+      ],
+      "learning_rate_init": 0.00017874463256238414,
+      "alpha": 7.734482156646798e-06
+    },
+    "val_metric": 0.13125491670737877,
+    "train_size": 849,
+    "test_size": 243,
+    "emb_dim": 768,
+    "test_r2": -0.3707762018565748,
+    "metric": -0.3707762018565748
+  },
+  {
+    "dataset": "Clearance_Hepatocyte_AZ",
+    "baseline": "MolCLR",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128,
+        64
+      ],
+      "learning_rate_init": 3.585612610345398e-05,
+      "alpha": 0.0075568101412744225
+    },
+    "val_metric": 0.29326909387781974,
+    "train_size": 849,
+    "test_size": 243,
+    "emb_dim": 512,
+    "test_r2": 0.058845719110857564,
+    "metric": 0.058845719110857564
+  },
+  {
+    "dataset": "Clearance_Hepatocyte_AZ",
+    "baseline": "Morgan-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        512,
+        256
+      ],
+      "learning_rate_init": 0.007866216981266841,
+      "alpha": 0.00026800135558226965
+    },
+    "val_metric": 0.06723196250028374,
+    "train_size": 849,
+    "test_size": 243,
+    "emb_dim": 2048,
+    "test_r2": -0.18042706736804437,
+    "metric": -0.18042706736804437
+  },
+  {
+    "dataset": "Clearance_Hepatocyte_AZ",
+    "baseline": "MolE-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        512,
+        256
+      ],
+      "learning_rate_init": 0.00018856783874794976,
+      "alpha": 6.788387912421211e-06
+    },
+    "val_metric": 0.17033872856316723,
+    "train_size": 849,
+    "test_size": 243,
+    "emb_dim": 256,
+    "test_r2": -0.09406125155510203,
+    "metric": -0.09406125155510203
+  },
+  {
+    "dataset": "Clearance_Microsome_AZ",
+    "baseline": "ChemBERTa",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        512,
+        256
+      ],
+      "learning_rate_init": 0.007866216981266841,
+      "alpha": 0.00026800135558226965
+    },
+    "val_metric": -0.012231014271530949,
+    "train_size": 771,
+    "test_size": 221,
+    "emb_dim": 768,
+    "test_r2": -0.009249153070581828,
+    "metric": -0.009249153070581828
+  },
+  {
+    "dataset": "Clearance_Microsome_AZ",
+    "baseline": "MolCLR",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128,
+        64
+      ],
+      "learning_rate_init": 0.007114476009343417,
+      "alpha": 0.0008471801418819973
+    },
+    "val_metric": 0.0004791678409424849,
+    "train_size": 771,
+    "test_size": 221,
+    "emb_dim": 512,
+    "test_r2": 0.2075696686214441,
+    "metric": 0.2075696686214441
+  },
+  {
+    "dataset": "Clearance_Microsome_AZ",
+    "baseline": "Morgan-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128
+      ],
+      "learning_rate_init": 0.00788671412999049,
+      "alpha": 0.0017123375973163968
+    },
+    "val_metric": 0.05117365698071763,
+    "train_size": 771,
+    "test_size": 221,
+    "emb_dim": 2048,
+    "test_r2": 0.12272803831326051,
+    "metric": 0.12272803831326051
+  },
+  {
+    "dataset": "Clearance_Microsome_AZ",
+    "baseline": "MolE-FP",
+    "task": "regression",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128,
+        64
+      ],
+      "learning_rate_init": 0.0025764174425233154,
+      "alpha": 5.5754539807753635e-06
+    },
+    "val_metric": 0.14010169528288785,
+    "train_size": 771,
+    "test_size": 221,
+    "emb_dim": 256,
+    "test_r2": 0.053994991087054856,
+    "metric": 0.053994991087054856
+  },
+  {
+    "dataset": "tox21",
+    "baseline": "ChemBERTa",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        384,
+        128
+      ],
+      "learning_rate_init": 0.001214380539778398,
+      "alpha": 0.0033256102959751893
+    },
+    "val_metric": 0.9166255184673119,
+    "train_size": 5080,
+    "test_size": 1453,
+    "emb_dim": 768,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.7082713356841482,
+    "test_f1": 0.39603960396039606,
+    "test_acc": 0.9580178940123881,
+    "metric": 0.7082713356841482
+  },
+  {
+    "dataset": "tox21",
+    "baseline": "MolCLR",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        128,
+        64
+      ],
+      "learning_rate_init": 0.003159255390701746,
+      "alpha": 4.9369486949604625e-06
+    },
+    "val_metric": 0.896429982223978,
+    "train_size": 5080,
+    "test_size": 1453,
+    "emb_dim": 512,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.7116243044373332,
+    "test_f1": 0.47706422018348627,
+    "test_acc": 0.9607708189951824,
+    "metric": 0.7116243044373332
+  },
+  {
+    "dataset": "tox21",
+    "baseline": "Morgan-FP",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128,
+        64
+      ],
+      "learning_rate_init": 0.00020914981329035588,
+      "alpha": 3.077180271250685e-06
+    },
+    "val_metric": 0.874185265652775,
+    "train_size": 5080,
+    "test_size": 1453,
+    "emb_dim": 2048,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.6706752817920547,
+    "test_f1": 0.41304347826086957,
+    "test_acc": 0.9628355127322781,
+    "metric": 0.6706752817920547
+  },
+  {
+    "dataset": "tox21",
+    "baseline": "MolE-FP",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        128,
+        64
+      ],
+      "learning_rate_init": 0.003159255390701746,
+      "alpha": 4.9369486949604625e-06
+    },
+    "val_metric": 0.9225508591744025,
+    "train_size": 5080,
+    "test_size": 1453,
+    "emb_dim": 256,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.6480860561342002,
+    "test_f1": 0.2682926829268293,
+    "test_acc": 0.9587061252580867,
+    "metric": 0.6480860561342002
+  },
+  {
+    "dataset": "herg",
+    "baseline": "ChemBERTa",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        512,
+        256
+      ],
+      "learning_rate_init": 0.007866216981266841,
+      "alpha": 0.00026800135558226965
+    },
+    "val_metric": 0.8634999999999999,
+    "train_size": 458,
+    "test_size": 132,
+    "emb_dim": 768,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.7762886597938145,
+    "test_f1": 0.8930232558139535,
+    "test_acc": 0.8257575757575758,
+    "metric": 0.7762886597938145
+  },
+  {
+    "dataset": "herg",
+    "baseline": "MolCLR",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        512,
+        256
+      ],
+      "learning_rate_init": 0.002656813924114493,
+      "alpha": 0.00034167643418329664
+    },
+    "val_metric": 0.849,
+    "train_size": 458,
+    "test_size": 132,
+    "emb_dim": 512,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.6602356406480118,
+    "test_f1": 0.8623853211009175,
+    "test_acc": 0.7727272727272727,
+    "metric": 0.6602356406480118
+  },
+  {
+    "dataset": "herg",
+    "baseline": "Morgan-FP",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        384,
+        128
+      ],
+      "learning_rate_init": 0.0019158219548093157,
+      "alpha": 0.00017583640270008504
+    },
+    "val_metric": 0.786,
+    "train_size": 458,
+    "test_size": 132,
+    "emb_dim": 2048,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.7733431516936672,
+    "test_f1": 0.841025641025641,
+    "test_acc": 0.7651515151515151,
+    "metric": 0.7733431516936672
+  },
+  {
+    "dataset": "herg",
+    "baseline": "MolE-FP",
+    "task": "classification",
+    "n_trials": 50,
+    "best_cfg": {
+      "hidden_layer_sizes": [
+        256,
+        128
+      ],
+      "learning_rate_init": 0.0008771429187378855,
+      "alpha": 1.0048043533223178e-06
+    },
+    "val_metric": 0.801,
+    "train_size": 458,
+    "test_size": 132,
+    "emb_dim": 256,
+    "pos_class_index": 1,
+    "classes": [
+      0,
+      1
+    ],
+    "test_auc": 0.6857142857142857,
+    "test_f1": 0.8252427184466019,
+    "test_acc": 0.7272727272727273,
+    "metric": 0.6857142857142857
+  }
+]

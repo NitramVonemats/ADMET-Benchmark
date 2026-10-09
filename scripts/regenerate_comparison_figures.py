@@ -1,12 +1,12 @@
 """
-Regenerate the two model-comparison figures directly from the current Table IV
+Regenerate the two model-comparison figures directly from the current Table II
 values (R2 for regression, AUC-ROC for classification), so they stay consistent
 with the HPO-parity re-benchmark:
 
   - foundation_ranking.png            : per-task rank heatmap (Fig. foundation_ranking)
   - gnn_vs_foundation_comparison.png  : 2-panel bar comparison (Fig. foundation_comparison)
 
-Values below are the authoritative Table IV cells (GNN-Best from the HPO sweep;
+Values below are the authoritative Table II cells (GNN-Best from the HPO sweep;
 each baseline the best of a 50-trial validation-based head search). Baselines are
 sourced from results/baseline_hpo_parity/baseline_hpo_parity_results.json; the GNN
 column is unchanged from the main benchmark.
@@ -25,7 +25,7 @@ os.makedirs(IMG, exist_ok=True)
 
 MODELS = ["GNN (Ours)", "ChemBERTa", "Morgan-FP", "MolE-FP", "MolCLR"]
 
-# --- Table IV values (rows aligned to MODELS) ---
+# --- Table II values (rows aligned to MODELS) ---
 # Canonical 10-seed MEDIAN values (leak-free fair comparison; all families).
 # Source: results/fair_model_family/table_IV_median_canonical.csv
 REG = {  # regression R^2 (GNN = 10-seed median, molecule-level dedup split)
